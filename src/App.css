@@ -1,0 +1,58 @@
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background-color: #f9f9f9;
+  color: #333;
+}
+
+
+.container {
+  padding: 20px;
+}
+
+.header {
+  font-size: 2em;
+  font-weight: bold;
+}
+
+.input-group {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 10px;
+}
+
+.input-container {
+  flex: 1;
+}
+
+.input-label {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.input-field {
+  width: 100%;
+  padding: 5px;
+  font-size: 0.9em;
+  margin-bottom: 10px;
+}
+
+.small-input {
+  width: 80px;
+  font-size: 0.8em;
+}
+
+.textarea {
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.button {
+  padding: 10px 20px;
+  margin-right: 10px;
+}
+
+.output-header {
+  font-size: 1.5em;
+  margin-top: 20px;
+}
