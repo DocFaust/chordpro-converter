@@ -1,10 +1,10 @@
-import { useState } from "react";
-import { convertToChordPro } from "./convertToChordPro";
+import {useState} from "react";
+import {convertToChordPro} from "./convertToChordPro";
 import InputFields from "./components/InputFields";
 import TextArea from "./components/TextArea";
 import ButtonGroup from "./components/ButtonGroup";
 import {saveFile} from "./saveToOwncloud.js";
-import { Container, Row, Col } from "react-bootstrap";
+import {Container, Row, Col} from "react-bootstrap";
 
 function App() {
     const [input, setInput] = useState("");
@@ -15,7 +15,7 @@ function App() {
     const [output, setOutput] = useState("");
 
     const handleConvert = () => {
-        setOutput(convertToChordPro({ title, artist, capo, key, input }));
+        setOutput(convertToChordPro({title, artist, capo, key, input}));
     };
 
     const copyToClipboard = () => {
@@ -24,11 +24,14 @@ function App() {
         });
     };
 
-
+    const saveToOwnCloud = () => {
+        let file = title + ".cho";
+        let content = output;
+    }
 
     const downloadChordProFile = () => {
         // Blob aus dem ChordPro-Inhalt erstellen
-        const blob = new Blob([output], { type: "text/plain" });
+        const blob = new Blob([output], {type: "text/plain"});
         const url = URL.createObjectURL(blob);
 
         // Temporären Anker erstellen und Klick auslösen
@@ -43,6 +46,13 @@ function App() {
         // Cleanup
         document.body.removeChild(link);
         URL.revokeObjectURL(url);
+        saveFile(fileName, blob)
+            .then(() => {
+                alert("Datei wurde gespeichert!")
+            })
+            .catch((error) => {
+                alert("Fehler beim Speichern: " + error)
+            });
     };
 
     return (
@@ -68,11 +78,13 @@ function App() {
                 onConvert={handleConvert}
                 onCopy={copyToClipboard}
                 onDownload={downloadChordProFile}
+                onOwnCloud={saveToOwnCloud}
             />
             <h2 className="mt-4">ChordPro Ausgabe:</h2>
-            <TextArea rows="10" value={output} readOnly />
+            <TextArea rows="10" value={output} readOnly/>
         </Container>
     );
 }
+
 
 export default App;
