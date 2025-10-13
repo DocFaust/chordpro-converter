@@ -1,10 +1,7 @@
 // convertToChordPro.js
 
 const isChordLine = (line) =>
-    /^[A-G][#b]?(m|M|dim|aug|add\d*|sus\d+)?(\s+[A-G][#b]?(m|M|dim|aug|add\d*|sus\d+)?)*$/.test(line.trim());
-
-
-
+    /^([A-G][#b]?[a-zA-Z0-9]*(\*?)|\|)(\s+([A-G][#b]?[a-zA-Z0-9]*(\*?)|\|))*$/.test(line.trim());
 const mergeChordAndText = (chords, text) => {
     let combined = "";
     let textIndex = 0;
@@ -53,12 +50,31 @@ export function convertToChordPro({ title, artist, capo, key, input }) {
 
         if (trimmedLine === "") {
             const formattedChords = buffer
+                .trim()
                 .split(/\s+/)
+                .filter(Boolean)
                 .map((chord) => `[${chord}]`)
                 .join(" ");
             result.push(formattedChords);
             result.push("");
             buffer = "";
+            continue;
+        }
+        if (/^\[(Chorus|Refrain)[^\]]*\]/i.test(trimmedLine)) {
+            const match = trimmedLine.match(/^\[([^\]]+)\]\s*(.*)/i);
+            if (match) {
+                result.push(`{soc: ${match[1].trim()}}`);
+                if (match[2]) result.push(match[2]);
+            }
+            continue;
+        }
+
+        if (/^\[(Verse|Strophe|Vers)[^\]]*\]/i.test(trimmedLine)) {
+            const match = trimmedLine.match(/^\[([^\]]+)\]\s*(.*)/i);
+            if (match) {
+                result.push(`{sov: ${match[1].trim()}}`);
+                if (match[2]) result.push(match[2]);
+            }
             continue;
         }
 
