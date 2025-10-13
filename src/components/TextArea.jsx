@@ -11,6 +11,11 @@ function TextArea({ rows, placeholder, value, onChange, readOnly = false }) {
                 value={value}
                 onChange={onChange}
                 readOnly={readOnly}
+                style={{
+                    fontFamily: "monospace",
+                    whiteSpace: "pre",
+                    fontSize: "0.95rem"
+                }}
             />
         </Form.Group>
     );

@@ -1,5 +1,5 @@
 import {useState} from "react";
-import {convertToChordPro} from "./convertToChordPro";
+import {convertToChordPro} from "./converter/convertToChordPro";
 import InputFields from "./components/InputFields";
 import TextArea from "./components/TextArea";
 import ButtonGroup from "./components/ButtonGroup";
@@ -37,9 +37,9 @@ function App() {
         // Temporären Anker erstellen und Klick auslösen
         const link = document.createElement("a");
         link.href = url;
-        const fileName = title ? `${title}.chopro` : "chordpro_file.chopro";
+        const fileName = title ? `${title}` : "chordpro_file";
 
-        link.download = `${fileName}.chopro`; // Dateiname mit Endung
+        link.download = `${fileName}.chord`; // Dateiname mit Endung
         document.body.appendChild(link);
         link.click();
 
