@@ -45,12 +45,11 @@ pipeline {
 
     post {
         always {
-              junit testResults: 'reports/tests/*.xml', allowEmptyResults: true
+          junit testResults: 'reports/tests/*.xml', allowEmptyResults: true
 
-                    recordIssues tools: [
-                        eslint(pattern: 'reports/eslint/eslint.json')
-                    ]
-                }
+            recordIssues tools: [
+                eslint(pattern: 'reports/eslint/eslint.json')
+            ]
             // ✅ Coverage (Cobertura XML aus Vitest)
             // Coverage Plugin (Code Coverage API) notwendig
             publishCoverage adapters: [
