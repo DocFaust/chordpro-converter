@@ -10,6 +10,8 @@ lerna-debug.log*
 node_modules
 reports/
 coverage/
+dependency-check-bin/
+dependency-check-report/
 dist
 dist-ssr
 *.local

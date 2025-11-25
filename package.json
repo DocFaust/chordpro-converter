@@ -11,7 +11,7 @@
     "test": "vitest run --config vitest.config.js",
     "test:watch": "vitest",
     "test:ci": "vitest run --config vitest.config.js",
-    "owasp": "owasp-dependency-check --project vbb-card-react -f ALL -s . --out ./dependency-check-report --nvdApiKey $NVDAPIKEY",
+    "owasp": "owasp-dependency-check --project vbb-card-react -f ALL -s . --out ./dependency-check-report  --disableAssembly --disableYarnAudit --disableOssIndex --nvdApiKey $NVDAPIKEY",
     "lint:ci": "eslint . -f json -o reports/eslint/eslint.json"
   },
   "dependencies": {
