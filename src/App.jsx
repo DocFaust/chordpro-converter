@@ -4,7 +4,7 @@ import InputFields from "./components/InputFields";
 import TextArea from "./components/TextArea";
 import ButtonGroup from "./components/ButtonGroup";
 import {saveFile} from "./saveToOwncloud.js";
-import {Container, Row, Col} from "react-bootstrap";
+import {Container} from "react-bootstrap";
 
 function App() {
     const [input, setInput] = useState("");
@@ -25,8 +25,8 @@ function App() {
     };
 
     const saveToOwnCloud = () => {
-        let file = title + ".cho";
-        let content = output;
+        // let file = title + ".cho";
+        // let content = output;
     }
 
     const downloadChordProFile = () => {
