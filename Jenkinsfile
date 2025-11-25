@@ -17,6 +17,21 @@ pipeline {
                 sh 'npm ci'
             }
         }
+        stage('Security Audit') {
+            steps {
+                script {
+                    // Ordner für Reports anlegen
+                    sh 'mkdir -p reports/npm-audit'
+
+                    // npm audit laufen lassen, aber den Build NICHT abbrechen
+                    // --omit=dev: nur prod-Dependencies (optional)
+                    // --audit-level=high: nur hohe/critical Issues (optional)
+                    sh '''
+                        npm audit --omit=dev --audit-level=high --json > reports/npm-audit/npm-audit.json || true
+                    '''
+                }
+            }
+        }
 
         stage('Lint') {
             steps {
@@ -57,6 +72,7 @@ pipeline {
             // ✅ ESLint-JSON ins Warnings-NG-Plugin
             recordIssues tools: [
                 esLint(pattern: 'reports/eslint/eslint.json')
+                npmAudit(pattern: 'reports/npm-audit/npm-audit.json')
             ]
 
             // ✅ Coverage (falls du schon Cobertura aus Vitest erzeugst)
