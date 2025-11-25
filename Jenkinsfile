@@ -79,9 +79,7 @@ pipeline {
             // publishCoverage brauchst du nur, wenn das Coverage-Plugin installiert ist
             // und du z.B. coverage/cobertura-coverage.xml aus Vitest hast.
             // Beispiel:
-            publishCoverage adapters: [
-                coberturaAdapter('coverage/cobertura-coverage.xml')
-            ], sourceFileResolver: sourceFiles('STORE_LAST_BUILD')
+            recordCoverage(tools: [[parser: 'CLOVER', path: 'coverage/clover.xml']])
         }
     }
 }

@@ -13,7 +13,7 @@ export default defineConfig({
             provider: 'v8',                 // benötigt @vitest/coverage-v8
             reportsDirectory: 'coverage',
             enabled: true,
-            reporter: ['text', 'lcov', 'cobertura']
+            reporter: ['text', 'lcov', 'cobertura', 'clover']
             // erzeugt u.a.:
             // coverage/lcov.info
             // coverage/cobertura-coverage.xml
