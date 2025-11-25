@@ -8,13 +8,11 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test": "vitest run",
+    "test": "vitest run --config vitest.config.js",
     "test:watch": "vitest",
-
-    "test:ci": "vitest run",
+    "test:ci": "vitest run --config vitest.config.js",
     "lint:ci": "eslint . -f json -o reports/eslint/eslint.json"
   },
-
   "dependencies": {
     "axios": "^1.7.7",
     "bootstrap": "^5.3.3",
