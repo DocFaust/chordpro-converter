@@ -12,7 +12,7 @@
     "test:watch": "vitest",
 
     "test:ci": "vitest run",
-    "lint:ci": "eslint . -f junit -o reports/eslint/eslint.xml"
+    "lint:ci": "eslint . -f json -o reports/eslint/eslint.json"
   },
 
   "dependencies": {

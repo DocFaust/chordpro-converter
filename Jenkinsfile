@@ -45,13 +45,12 @@ pipeline {
 
     post {
         always {
-            // ✅ Test-Reports (Vitest → JUnit)
-            junit 'reports/tests/*.xml'
+              junit testResults: 'reports/tests/*.xml', allowEmptyResults: true
 
-            // ✅ Lint-Warnungen (ESLint → JUnit XML)
-            // Warnings Next Generation Plugin notwendig
-            recordIssues tools: [eslint(pattern: 'reports/eslint/*.xml')]
-
+                    recordIssues tools: [
+                        eslint(pattern: 'reports/eslint/eslint.json')
+                    ]
+                }
             // ✅ Coverage (Cobertura XML aus Vitest)
             // Coverage Plugin (Code Coverage API) notwendig
             publishCoverage adapters: [
