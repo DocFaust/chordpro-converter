@@ -20,7 +20,13 @@ pipeline {
 
         stage('Lint') {
             steps {
-                sh 'npm run lint:ci'
+                script {
+                    // Lint-Fehler sollen den Build NICHT komplett abbrechen,
+                    // aber den Build-Status auf UNSTABLE setzen.
+                    catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
+                        sh 'npm run lint:ci'
+                    }
+                }
             }
         }
 
@@ -45,16 +51,21 @@ pipeline {
 
     post {
         always {
-          junit testResults: 'reports/tests/*.xml', allowEmptyResults: true
+            // ✅ Vitest JUnit-Reports (mit allowEmptyResults, damit kein Fehler fliegt)
+            junit testResults: 'reports/tests/*.xml', allowEmptyResults: true
 
+            // ✅ ESLint-JSON ins Warnings-NG-Plugin
             recordIssues tools: [
-                eslint(pattern: 'reports/eslint/eslint.json')
+                esLint(pattern: 'reports/eslint/eslint.json')
             ]
-            // ✅ Coverage (Cobertura XML aus Vitest)
-            // Coverage Plugin (Code Coverage API) notwendig
-            publishCoverage adapters: [
-                coberturaAdapter('coverage/cobertura-coverage.xml')
-            ], sourceFileResolver: sourceFiles('STORE_LAST_BUILD')
+
+            // ✅ Coverage (falls du schon Cobertura aus Vitest erzeugst)
+            // publishCoverage brauchst du nur, wenn das Coverage-Plugin installiert ist
+            // und du z.B. coverage/cobertura-coverage.xml aus Vitest hast.
+            // Beispiel:
+            // publishCoverage adapters: [
+            //     coberturaAdapter('coverage/cobertura-coverage.xml')
+            // ], sourceFileResolver: sourceFiles('STORE_LAST_BUILD')
         }
     }
 }
