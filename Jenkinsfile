@@ -115,7 +115,7 @@ pipeline {
 
             // ✅ ESLint-JSON ins Warnings-NG-Plugin
             recordIssues tools: [
-                esLint(pattern: 'reports/eslint/eslint.json'),
+                checkStyle(pattern: 'reports/eslint/eslint-checkstyle.xml'),
                 npmAudit(pattern: 'reports/npm-audit/npm-audit.json')
             ]
 
