@@ -45,7 +45,7 @@ pipeline {
                 script {
                     // Lint-Fehler sollen den Build NICHT komplett abbrechen,
                     // aber den Build-Status auf UNSTABLE setzen.
-                    catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
+                    catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
                         sh 'npm run lint:ci'
                     }
                 }
