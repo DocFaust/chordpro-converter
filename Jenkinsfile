@@ -120,7 +120,6 @@ pipeline {
                              subject: "Build ${env.JOB_NAME} #${env.BUILD_NUMBER} status",
                              body: "The build ${env.JOB_NAME} #${env.BUILD_NUMBER} has completed. Check the status at ${env.BUILD_URL}."
                     }
-        }
         unstable {
                     mail to: 'werner@docfaust.de',
                          subject: "Build ${env.JOB_NAME} #${env.BUILD_NUMBER} is unstable",
@@ -131,5 +130,6 @@ pipeline {
                          subject: "Build ${env.JOB_NAME} #${env.BUILD_NUMBER} failed",
                          body: "The build ${env.JOB_NAME} #${env.BUILD_NUMBER} has failed. Check the details at ${env.BUILD_URL}."
                 }
+        }
     }
 }
