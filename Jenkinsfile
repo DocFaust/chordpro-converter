@@ -64,34 +64,35 @@ pipeline {
             }
         }
         stage('Dependency Check') {
-                            when {
-                                expression {
-                                    def runCheck = true
-                                    if (fileExists(env.DEP_CHECK_FILE)) {
-                                        def lastRun = readFile(env.DEP_CHECK_FILE).trim()
-                                        def lastRunTime = lastRun as long
-                                        def currentTime = System.currentTimeMillis()
-                                        def timeDifference = currentTime - lastRunTime
-                                        // 86400000 milliseconds = 24 hours
-                                        runCheck = timeDifference > 86400000
-                                    }
-                                    return runCheck
-                                }
-                            }
-                            steps {
-                                sh 'mkdir -p dependency-check-bin' // Ensure directory exists
-                                sh 'npm run owasp' // Run OWASP Dependency Check
-                                script {
-                                    // Update the last run timestamp
-                                    writeFile(file: env.DEP_CHECK_FILE, text: "${System.currentTimeMillis()}")
-                                }
-                            }
-                            post {
-                                success {
-                                    dependencyCheckPublisher pattern: 'dependency-check-report.xml' // Publish dependency check report
-                                }
-                            }
-                        }
+            when {
+                expression {
+                    def runCheck = true
+                    if (fileExists(env.DEP_CHECK_FILE)) {
+                        def lastRun = readFile(env.DEP_CHECK_FILE).trim()
+                        def lastRunTime = lastRun as long
+                        def currentTime = System.currentTimeMillis()
+                        def timeDifference = currentTime - lastRunTime
+                        // 86400000 milliseconds = 24 hours
+                        runCheck = timeDifference > 1000 * 60 * 60 * 1
+                        // runCheck = timeDifference > 86400000
+                    }
+                    return runCheck
+                }
+            }
+            steps {
+                sh 'mkdir -p dependency-check-bin' // Ensure directory exists
+                sh 'npm run owasp' // Run OWASP Dependency Check
+                script {
+                    // Update the last run timestamp
+                    writeFile(file: env.DEP_CHECK_FILE, text: "${System.currentTimeMillis()}")
+                }
+            }
+            post {
+                success {
+                    dependencyCheckPublisher pattern: 'dependency-check-report.xml' // Publish dependency check report
+                }
+            }
+        }
 
         stage('Archive Artifact') {
             steps {
