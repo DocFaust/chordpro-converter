@@ -93,6 +93,13 @@ pipeline {
                 }
             }
         }
+        stage('SonarQube Analysis') {
+            steps {
+                withEnv(["SONAR_TOKEN=${SONAR_TOKEN}"]) {
+                    sh 'npm run sonar'
+                }
+            }
+        }
 
         stage('Archive Artifact') {
             steps {
