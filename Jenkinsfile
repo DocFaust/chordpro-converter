@@ -3,10 +3,6 @@ pipeline {
     triggers {
         // 1x täglich irgendwann zwischen 08:00 und 08:59
         cron('H 8 * * *')
-
-        // Bei jedem Commit: SCM alle 5 Minuten abfragen
-        // (es wird NUR gebaut, wenn sich etwas im Repo geändert hat)
-        pollSCM('H/5 * * * *')
     }
     tools {
         nodejs "nodejs"
