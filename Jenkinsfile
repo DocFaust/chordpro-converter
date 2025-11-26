@@ -73,7 +73,7 @@ pipeline {
                         def currentTime = System.currentTimeMillis()
                         def timeDifference = currentTime - lastRunTime
                         // 86400000 milliseconds = 24 hours
-                        runCheck = timeDifference > 1000 * 60 * 60 * 1
+                        runCheck = timeDifference > 1000 * 60 * 1 * 1
                         // runCheck = timeDifference > 86400000
                     }
                     return runCheck
@@ -89,7 +89,7 @@ pipeline {
             }
             post {
                 success {
-                    dependencyCheckPublisher pattern: 'dependency-check-report.xml' // Publish dependency check report
+                    dependencyCheckPublisher pattern: 'dependency-check-report/dependency-check-report.xml' // Publish dependency check report
                 }
             }
         }
