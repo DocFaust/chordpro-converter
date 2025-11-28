@@ -94,20 +94,22 @@ pipeline {
             }
         }
 stage('SonarQube Analysis') {
-  steps {
-    withSonarQubeEnv('My Sonar') {
-      script {
-        def scannerHome = tool 'SonarScanner'
-        sh """
-          ${scannerHome}/bin/sonar-scanner \
-            -Dsonar.projectKey=chordpro-converter \
-            -Dsonar.sources=src \
-            -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
-        """
-      }
+    steps {
+        withSonarQubeEnv('My Sonar') {
+            script {
+                def scannerHome = tool 'sonar'
+
+                sh """
+                    ${scannerHome}/bin/sonar-scanner \
+                      -Dsonar.projectKey=chordpro-converter \
+                      -Dsonar.sources=src \
+                      -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
+                """
+            }
+        }
     }
-  }
 }
+
         stage('Archive Artifact') {
             steps {
                 archiveArtifacts artifacts: 'dist/**', fingerprint: true
