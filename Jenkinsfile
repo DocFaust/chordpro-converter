@@ -9,7 +9,6 @@ pipeline {
     }
     environment {
         NVDAPIKEY = credentials('nvd-api-key') // API key from Jenkins credentials
-        SONAR_TOKEN = credentials('My Sonar')
         DEP_CHECK_FILE = 'dependency-check-last-run.txt'
     }
     stages {
