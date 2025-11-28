@@ -6,6 +6,7 @@ pipeline {
     }
     tools {
         nodejs "nodejs"
+        sonar "sonar"
     }
     environment {
         NVDAPIKEY = credentials('nvd-api-key') // API key from Jenkins credentials
@@ -96,7 +97,7 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('My Sonar') {
-                    sh 'npm run sonar'
+                    sh 'sonar-scanner'
                 }
             }
         }
