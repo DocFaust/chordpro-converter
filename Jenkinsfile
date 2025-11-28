@@ -95,7 +95,7 @@ pipeline {
         }
         stage('SonarQube Analysis') {
             steps {
-                withEnv(["SONAR_TOKEN=${SONAR_TOKEN}"]) {
+                withSonarQubeEnv() {
                     sh 'npm run sonar'
                 }
             }
