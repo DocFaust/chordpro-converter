@@ -1,7 +1,7 @@
 // import React from "react";
 import {Button} from "react-bootstrap";
 
-function ButtonGroup({onConvert, onCopy, onDownload, onOwnCloud}) {
+function ButtonGroup({onConvert, onCopy, onDownload}) {
     return (
         <div className="d-flex gap-2">
             <Button variant="primary" onClick={onConvert}>
@@ -13,9 +13,7 @@ function ButtonGroup({onConvert, onCopy, onDownload, onOwnCloud}) {
             <Button onClick={onDownload}>
                 Download als Datei
             </Button>
-            <Button variant="secondary" onClick={onOwnCloud}>
-                Auf Owncloud stellen
-            </Button>        </div>
+        </div>
     );
 }
 
