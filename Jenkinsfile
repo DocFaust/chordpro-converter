@@ -99,7 +99,6 @@ stage('SonarQube Analysis') {
                 def scannerHome = tool 'sonar'
 
                 sh """
-                    echo $SONAR_TOKEN
                     ${scannerHome}/bin/sonar-scanner \
                       -Dsonar.projectKey=chordpro-converter \
                       -Dsonar.sources=src \
