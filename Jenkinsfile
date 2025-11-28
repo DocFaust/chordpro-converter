@@ -6,7 +6,6 @@ pipeline {
     }
     tools {
         nodejs "nodejs"
-        sonar "sonar"
     }
     environment {
         NVDAPIKEY = credentials('nvd-api-key') // API key from Jenkins credentials
@@ -94,14 +93,21 @@ pipeline {
                 }
             }
         }
-        stage('SonarQube Analysis') {
-            steps {
-                withSonarQubeEnv('My Sonar') {
-                    sh 'sonar-scanner'
-                }
-            }
-        }
-
+stage('SonarQube Analysis') {
+  steps {
+    withSonarQubeEnv('My Sonar') {
+      script {
+        def scannerHome = tool 'SonarScanner'
+        sh """
+          ${scannerHome}/bin/sonar-scanner \
+            -Dsonar.projectKey=chordpro-converter \
+            -Dsonar.sources=src \
+            -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
+        """
+      }
+    }
+  }
+}
         stage('Archive Artifact') {
             steps {
                 archiveArtifacts artifacts: 'dist/**', fingerprint: true
