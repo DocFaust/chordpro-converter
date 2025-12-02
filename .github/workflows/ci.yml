@@ -1,0 +1,80 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+
+jobs:
+  build-test-lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Node einrichten
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Dependencies installieren
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install
+          fi
+
+      # Tests + Coverage (Vitest)
+      - name: Tests ausführen
+        run: npm run test:ci
+
+      - name: Test-Reports hochladen
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports
+          path: |
+            reports/tests/junit.xml
+            coverage/
+          if-no-files-found: ignore
+
+      # Linting (ESLint mit Checkstyle-Output)
+      - name: Lint ausführen
+        run: npm run lint:ci
+
+      - name: Lint-Report hochladen
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lint-report
+          path: reports/eslint/
+          if-no-files-found: ignore
+
+      # npm audit (bricht den Build nicht ab, zeigt aber Probleme)
+      - name: npm audit
+        run: npm audit --audit-level=high
+        continue-on-error: true
+
+      # OWASP Dependency Check über dein npm-Script
+      - name: OWASP Dependency Check
+        env:
+          NVDAPIKEY: ${{ secrets.NVDAPIKEY }}
+        run: npm run owasp
+
+      - name: Dependency-Check Report hochladen
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: owasp-dependency-check
+          path: dependency-check-report/
+          if-no-files-found: ignore
+
+      # Sonar-Analyse (nutzt dein npm run sonar)
+      - name: Sonar Scan
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        run: npm run sonar
