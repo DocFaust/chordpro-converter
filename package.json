@@ -13,7 +13,8 @@
     "sonar": "sonar",
     "test:ci": "vitest run --config vitest.config.js",
     "owasp": "owasp-dependency-check --project chordpro-converter -f ALL -s . --out ./dependency-check-report --disableAssembly --disableYarnAudit --disableOssIndex --disableCentral --data ./dc-data --nvdApiKey $NVDAPIKEY",
-    "lint:ci": "eslint . -f checkstyle -o reports/eslint/eslint-checkstyle.xml"
+    "lint:ci": "eslint . -f checkstyle -o reports/eslint/eslint-checkstyle.xml",
+    "lint:sonar": "eslint src --ext .ts,.tsx,.js,.jsx -f json -o reports/eslint/eslint-sonar.json"
   },
   "dependencies": {
     "axios": "^1.7.7",

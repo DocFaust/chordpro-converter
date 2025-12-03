@@ -41,9 +41,8 @@ jobs:
             coverage/
           if-no-files-found: ignore
 
-      # Lint (ESLint Checkstyle)
-      - name: Lint ausführen
-        run: npm run lint:ci
+      - name: Lint für Sonar ausführen
+        run: npm run lint:sonar
 
       - name: Lint-Report hochladen
         if: always()
@@ -52,7 +51,6 @@ jobs:
           name: lint-report
           path: reports/eslint/
           if-no-files-found: ignore
-
       # npm audit – bricht den Build nicht ab, zeigt aber Probleme
       - name: npm audit
         run: npm audit --audit-level=high
@@ -82,7 +80,4 @@ jobs:
             -Dsonar.projectKey=DocFaust_chordpro-converter
             -Dsonar.organization=docfaust
             -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
-            -Dsonar.testExecutionReportPaths=reports/tests/junit.xml
-            -Dsonar.eslint.reportPaths=reports/eslint/eslint-checkstyle.xml
-
-# Nur für neue CI
+            -Dsonar.eslint.reportPaths=reports/eslint/eslint-sonar.json
