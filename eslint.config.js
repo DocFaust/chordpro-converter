@@ -5,9 +5,18 @@ import reactHooks from 'eslint-plugin-react-hooks'
 import reactRefresh from 'eslint-plugin-react-refresh'
 
 export default [
-  { ignores: ['dist'] },
   {
-    files: ['**/*.{js,jsx}'],
+      ignores: [
+          "dist/**",
+          "coverage/**",
+          ".scannerwork/**",
+          "dependency-check-report/**",
+          "dc-data/**",
+          "**/*.config.js",
+      ],
+  },
+  {
+    files: ["src/**/*.{js,jsx,ts,tsx}"],
     languageOptions: {
       ecmaVersion: 2020,
       globals: globals.browser,
