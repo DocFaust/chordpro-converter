@@ -9,7 +9,6 @@ pipeline {
     }
     environment {
         NVDAPIKEY = credentials('nvd-api-key') // API key from Jenkins credentials
-        SONAR_TOKEN = credentials('My Sonar')
         DEP_CHECK_FILE = 'dependency-check-last-run.txt'
     }
     stages {
@@ -93,13 +92,22 @@ pipeline {
                 }
             }
         }
-        stage('SonarQube Analysis') {
-            steps {
-                withEnv(["SONAR_TOKEN=${SONAR_TOKEN}"]) {
-                    sh 'npm run sonar'
-                }
+stage('SonarQube Analysis') {
+    steps {
+        withSonarQubeEnv('My Sonar') {
+            script {
+                def scannerHome = tool 'sonar'
+
+                sh """
+                    ${scannerHome}/bin/sonar-scanner \
+                      -Dsonar.projectKey=chordpro-converter \
+                      -Dsonar.sources=src \
+                      -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
+                """
             }
         }
+    }
+}
 
         stage('Archive Artifact') {
             steps {

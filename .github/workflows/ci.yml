@@ -1,0 +1,79 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+
+jobs:
+  build-test-lint-sonar:
+    runs-on: ubuntu-latest
+    environment: General
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Node einrichten
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Dependencies installieren
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install
+          fi
+
+      # Tests + Coverage (Vitest, laut vitest.config.js)
+      - name: Tests ausführen (mit Coverage)
+        run: npm run test:ci
+
+      - name: Test- & Coverage-Artefakte hochladen
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tests-and-coverage
+          path: |
+            reports/tests/junit.xml
+            coverage/
+          if-no-files-found: ignore
+
+      # Lint (ESLint Checkstyle)
+      - name: Lint ausführen
+        run: npm run lint:ci
+
+      - name: Lint-Report hochladen
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lint-report
+          path: reports/eslint/
+          if-no-files-found: ignore
+
+      # npm audit – bricht den Build nicht ab, zeigt aber Probleme
+      - name: npm audit
+        run: npm audit --audit-level=high
+        continue-on-error: true
+
+      # OWASP Dependency Check über dein npm-Script
+      - name: OWASP Dependency Check
+        env:
+          NVDAPIKEY: ${{ secrets.NVDAPIKEY }}
+        run: npm run owasp
+
+      # SonarCloud-Analyse mit Coverage & Testreports
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@v2
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          args: >
+            -Dsonar.projectKey=DocFaust_chordpro-converter
+            -Dsonar.organization=docfaust
+            -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
+            -Dsonar.testExecutionReportPaths=reports/tests/junit.xml
+            -Dsonar.eslint.reportPaths=reports/eslint/eslint-checkstyle.xml

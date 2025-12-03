@@ -12,6 +12,7 @@ reports/
 coverage/
 dependency-check-bin/
 dependency-check-report/
+.scannerwork/
 dist
 dist-ssr
 *.local

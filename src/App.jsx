@@ -24,11 +24,6 @@ function App() {
         });
     };
 
-    const saveToOwnCloud = () => {
-        // let file = title + ".cho";
-        // let content = output;
-    }
-
     const downloadChordProFile = () => {
         // Blob aus dem ChordPro-Inhalt erstellen
         const blob = new Blob([output], {type: "text/plain"});
@@ -78,7 +73,6 @@ function App() {
                 onConvert={handleConvert}
                 onCopy={copyToClipboard}
                 onDownload={downloadChordProFile}
-                onOwnCloud={saveToOwnCloud}
             />
             <h2 className="mt-4">ChordPro Ausgabe:</h2>
             <TextArea rows="10" value={output} readOnly/>
