@@ -84,3 +84,5 @@ jobs:
             -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
             -Dsonar.testExecutionReportPaths=reports/tests/junit.xml
             -Dsonar.eslint.reportPaths=reports/eslint/eslint-checkstyle.xml
+
+# Nur für neue CI
