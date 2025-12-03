@@ -12,7 +12,7 @@
     "test:watch": "vitest",
     "sonar": "node sonar.js",
     "test:ci": "vitest run --config vitest.config.js",
-    "owasp": "owasp-dependency-check --project vbb-card-react -f ALL -s . --out ./dependency-check-report  --disableAssembly --disableYarnAudit --disableOssIndex --nvdApiKey $NVDAPIKEY",
+    "owasp": "owasp-dependency-check --project vbb-card-react -f ALL -s . --out ./dependency-check-report  --disableAssembly --disableYarnAudit --disableOssIndex --disableCentral --nvdApiKey $NVDAPIKEY",
     "lint:ci": "eslint . -f checkstyle -o reports/eslint/eslint-checkstyle.xml"
   },
   "dependencies": {
