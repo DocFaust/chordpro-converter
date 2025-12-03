@@ -9,7 +9,6 @@ pipeline {
     }
     environment {
         NVDAPIKEY = credentials('nvd-api-key') // API key from Jenkins credentials
-        DEP_CHECK_FILE = 'dependency-check-last-run.txt'
     }
     stages {
         stage('Checkout') {
@@ -63,28 +62,9 @@ pipeline {
             }
         }
         stage('Dependency Check') {
-            when {
-                expression {
-                    def runCheck = true
-                    if (fileExists(env.DEP_CHECK_FILE)) {
-                        def lastRun = readFile(env.DEP_CHECK_FILE).trim()
-                        def lastRunTime = lastRun as long
-                        def currentTime = System.currentTimeMillis()
-                        def timeDifference = currentTime - lastRunTime
-                        // 86400000 milliseconds = 24 hours
-                        runCheck = timeDifference > 1000 * 60 * 60 * 1
-                        // runCheck = timeDifference > 86400000
-                    }
-                    return runCheck
-                }
-            }
             steps {
                 sh 'mkdir -p dependency-check-bin' // Ensure directory exists
                 sh 'npm run owasp' // Run OWASP Dependency Check
-                script {
-                    // Update the last run timestamp
-                    writeFile(file: env.DEP_CHECK_FILE, text: "${System.currentTimeMillis()}")
-                }
             }
             post {
                 success {
