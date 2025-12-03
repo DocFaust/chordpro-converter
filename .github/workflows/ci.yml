@@ -62,7 +62,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: dc-data
-          key: dc-data-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+          key: dc-data-${{ runner.os }}
           restore-keys: |
             dc-data-${{ runner.os }}-
       # OWASP Dependency Check über dein npm-Script
