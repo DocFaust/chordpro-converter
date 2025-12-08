@@ -71,13 +71,10 @@ jobs:
 
       # SonarCloud-Analyse mit Coverage & Testreports
       - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@v2
+        uses: SonarSource/sonarqube-scan-action@v6
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           args: >
-            -Dsonar.projectKey=DocFaust_chordpro-converter
-            -Dsonar.organization=docfaust
             -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
             -Dsonar.eslint.reportPaths=reports/eslint/eslint-sonar.json
