@@ -51,6 +51,38 @@ jobs:
           name: lint-report
           path: reports/eslint/
           if-no-files-found: ignore
+
+      # SonarCloud-Analyse mit Coverage & Testreports
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarqube-scan-action@v6
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
+            -Dsonar.eslint.reportPaths=reports/eslint/eslint-sonar.json
+
+  security-scan:
+    runs-on: ubuntu-latest
+    environment: General
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Node einrichten
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Dependencies installieren
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install
+          fi
+
       # npm audit – bricht den Build nicht ab, zeigt aber Probleme
       - name: npm audit
         run: npm audit --audit-level=high
@@ -63,18 +95,8 @@ jobs:
           key: dc-data-${{ runner.os }}
           restore-keys: |
             dc-data-${{ runner.os }}-
-      # OWASP Dependency Check über dein npm-Script
+
       - name: OWASP Dependency Check
         env:
           NVDAPIKEY: ${{ secrets.NVDAPIKEY }}
         run: npm run owasp
-
-      # SonarCloud-Analyse mit Coverage & Testreports
-      - name: SonarCloud Scan
-        uses: SonarSource/sonarqube-scan-action@v6
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        with:
-          args: >
-            -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
-            -Dsonar.eslint.reportPaths=reports/eslint/eslint-sonar.json
