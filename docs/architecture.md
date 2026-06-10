@@ -47,7 +47,7 @@ src/
 ├── components/              # Präsentationskomponenten (stateless)
 │   ├── InputFields.jsx      # Metadaten-Felder
 │   ├── TextArea.jsx         # Monospace-Textareas
-│   └── ButtonGroup.jsx      # Umwandeln / Kopieren / Download
+│   └── ButtonGroup.jsx      # Umwandeln / Kopieren / Download / Löschen
 ├── converter/               # Geschäftslogik (framework-agnostisch)
 │   ├── convertToChordPro.js # Hauptalgorithmus
 │   ├── chords.js            # Akkorderkennung
@@ -73,11 +73,12 @@ Die Konverter-Module unter `src/converter/` sind bewusst von React entkoppelt. S
 | `title`, `artist`, `capo`, `key` | ChordPro-Metadaten |
 | `output` | Konvertiertes ChordPro-Ergebnis |
 
-Drei Aktionen werden an Unterkomponenten weitergereicht:
+Vier Aktionen werden an Unterkomponenten weitergereicht:
 
 - **`handleConvert`** — Ruft `convertToChordPro()` auf und schreibt das Ergebnis in `output`
 - **`copyToClipboard`** — Nutzt die Browser-Clipboard-API
 - **`downloadChordProFile`** — Erzeugt einen Blob-Download (`.chord`) und triggert parallel den ownCloud-Upload
+- **`handleClear`** — Setzt alle Eingabefelder und die Ausgabe zurück
 
 ### Präsentationskomponenten
 
@@ -85,7 +86,7 @@ Alle Komponenten unter `src/components/` sind **stateless**. Sie erhalten Werte 
 
 - `InputFields` — Zweispaltiges Formular (Titel/Interpret links, Capo/Tonart rechts)
 - `TextArea` — Wiederverwendbare Textarea mit Monospace-Font und `white-space: pre`
-- `ButtonGroup` — Drei Bootstrap-Buttons für die Hauptaktionen
+- `ButtonGroup` — Vier Bootstrap-Buttons (Umwandeln, Kopieren, Download, Löschen)
 
 Es gibt keinen globalen State-Manager (kein Redux, kein Context). Der Umfang der Anwendung rechtfertigt lokalen Komponenten-State.
 
