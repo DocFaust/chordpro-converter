@@ -24,6 +24,15 @@ function App() {
         });
     };
 
+    const handleClear = () => {
+        setInput("");
+        setTitle("");
+        setArtist("");
+        setCapo("");
+        setKey("");
+        setOutput("");
+    };
+
     const downloadChordProFile = () => {
         // Blob aus dem ChordPro-Inhalt erstellen
         const blob = new Blob([output], {type: "text/plain"});
@@ -73,6 +82,7 @@ function App() {
                 onConvert={handleConvert}
                 onCopy={copyToClipboard}
                 onDownload={downloadChordProFile}
+                onClear={handleClear}
             />
             <h2 className="mt-4">ChordPro Ausgabe:</h2>
             <TextArea rows="10" value={output} readOnly/>

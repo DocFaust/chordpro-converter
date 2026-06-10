@@ -53,6 +53,10 @@ Vor der Konvertierung sollten Ultimate-Guitar-spezifische Zusatzzeilen entfernt 
 
 Auf **Umwandeln** klicken. Das Ergebnis erscheint im Ausgabefeld und kann kopiert oder als `.chord`-Datei heruntergeladen werden.
 
+### Schritt 6: Neues Lied konvertieren
+
+Mit **Löschen** (rechts neben den anderen Buttons) werden alle Felder geleert — Metadaten, Eingabetext und ChordPro-Ausgabe. Danach kann ein neues Lied von vorne eingegeben werden.
+
 ## Grundaufbau des Eingabetextes
 
 Der Eingabetext ist ein **zeilenbasierter Plaintext**. Jede Zeile hat genau eine Rolle:

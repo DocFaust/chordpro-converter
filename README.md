@@ -8,6 +8,7 @@ Webbasiertes Tool zum Umwandeln von Akkordblättern in das [ChordPro](https://ww
 - Akkordzeilen erkennen und mit Liedtext zusammenführen
 - Abschnittsüberschriften in ChordPro-Direktiven umwandeln
 - Ausgabe kopieren oder als `.chord`-Datei herunterladen
+- Alle Felder mit einem Klick löschen, um ein neues Lied zu konvertieren
 - Optionaler Upload nach ownCloud per WebDAV
 
 ## Dokumentation
