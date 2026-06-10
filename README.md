@@ -50,7 +50,7 @@ Der Build landet im Verzeichnis `dist/`.
 | `npm run test:watch` | Tests im Watch-Modus |
 | `npm run test:ci` | Tests mit Coverage (für CI) |
 | `npm run lint` | ESLint mit Checkstyle-Report |
-| `npm run lint:ci` | ESLint für Jenkins |
+| `npm run lint:ci` | ESLint mit Checkstyle-Report (XML) |
 | `npm run lint:sonar` | ESLint mit JSON-Report für SonarCloud |
 | `npm run sonar` | SonarCloud-Analyse lokal ausführen |
 | `npm run owasp` | OWASP Dependency-Check (benötigt `NVDAPIKEY`) |

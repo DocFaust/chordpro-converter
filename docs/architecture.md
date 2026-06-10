@@ -194,7 +194,7 @@ flowchart LR
 - **Entwicklung:** `vite` Dev-Server mit HMR auf Port 5173
 - **Produktion:** `vite build` erzeugt statische Assets in `dist/`
 - **Preview:** `vite preview` zum lokalen Testen des Builds
-- **Jenkins** archiviert `dist/**` als Build-Artefakt
+- **GitHub Actions** archiviert `dist/**` als Build-Artefakt
 
 Es gibt keinen Server-Side-Rendering- oder API-Layer. Die SPA kann auf jedem statischen File-Host deployed werden.
 
@@ -212,55 +212,40 @@ Tests liegen in `test/` und importieren direkt aus `src/converter/` — ohne Rea
 
 Vitest-Konfiguration (`vitest.config.js`):
 
-- **Reporter:** JUnit (`reports/tests/junit.xml`) für Jenkins
+- **Reporter:** JUnit (`reports/tests/junit.xml`) für CI
 - **Coverage:** v8-Provider, Ausgabe als LCOV, Cobertura und Clover unter `coverage/`
 
 ## CI/CD-Pipeline
 
-Zwei parallele Pipelines prüfen Qualität und Sicherheit:
+GitHub Actions (`.github/workflows/ci.yml`) prüft bei Push/PR auf `main`/`master` Qualität und Sicherheit in zwei parallelen Jobs:
 
-### GitHub Actions (`.github/workflows/ci.yml`)
-
-Ausgelöst bei Push/PR auf `main`/`master`:
+**Job `build-test-lint-sonar`:**
 
 1. `npm ci` → Dependencies
-2. `npm run test:ci` → Tests + Coverage
-3. `npm run lint:sonar` → ESLint JSON-Report
-4. `npm audit` → Abhängigkeitsprüfung (nicht blockierend)
-5. `npm run owasp` → OWASP Dependency-Check
-6. SonarCloud-Scan mit Coverage- und Lint-Reports
+2. `npm run test:ci` → Tests + Coverage (Artefakt: `tests-and-coverage`)
+3. `npm run lint:sonar` → ESLint JSON-Report (Artefakt: `lint-report`)
+4. `npm run build` → Produktions-Build (Artefakt: `dist`)
+5. SonarCloud-Scan mit Coverage- und Lint-Reports
 
-### Jenkins (`Jenkinsfile`)
+**Job `security-scan`:**
 
-Täglicher Cron-Build plus manuelle Auslösung:
+1. `npm ci` → Dependencies
+2. `npm audit` → Abhängigkeitsprüfung, nicht blockierend (Artefakt: `npm-audit-report`)
+3. `npm run owasp` → OWASP Dependency-Check (Artefakt: `owasp-dependency-check`)
 
-1. Checkout → `npm ci`
-2. npm audit (JSON-Report)
-3. ESLint (Checkstyle, UNSTABLE bei Fehlern)
-4. Tests mit Coverage
-5. Produktions-Build
-6. OWASP Dependency-Check
-7. Artefakt-Archivierung (`dist/**`)
-8. JUnit-, Coverage- und Lint-Reports; E-Mail-Benachrichtigung
+OWASP-Reports liegen nach dem Lauf unter **Artifacts → `owasp-dependency-check`** in der Actions-Run-Ansicht; lokal unter `dependency-check-report/dependency-check-report.html`.
 
 ```mermaid
 flowchart TB
     subgraph GHA["GitHub Actions"]
         T1["Tests + Coverage"]
         L1["ESLint → Sonar"]
-        O1["OWASP Check"]
+        B1["Vite Build → dist/"]
         S1["SonarCloud Scan"]
+        O1["OWASP Check"]
+        A1["npm audit"]
         T1 --> S1
         L1 --> S1
-    end
-
-    subgraph Jenkins["Jenkins"]
-        T2["Tests + Coverage"]
-        L2["ESLint Checkstyle"]
-        B2["Vite Build"]
-        O2["OWASP Check"]
-        A2["dist/ Archiv"]
-        B2 --> A2
     end
 ```
 

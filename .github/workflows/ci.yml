@@ -52,6 +52,16 @@ jobs:
           path: reports/eslint/
           if-no-files-found: ignore
 
+      - name: Produktions-Build
+        run: npm run build
+
+      - name: Build-Artefakt hochladen
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+          if-no-files-found: error
+
       # SonarCloud-Analyse mit Coverage & Testreports
       - name: SonarCloud Scan
         uses: SonarSource/sonarqube-scan-action@v6
@@ -85,8 +95,17 @@ jobs:
 
       # npm audit – bricht den Build nicht ab, zeigt aber Probleme
       - name: npm audit
-        run: npm audit --audit-level=high
-        continue-on-error: true
+        run: |
+          mkdir -p reports/npm-audit
+          npm audit --audit-level=high --json > reports/npm-audit/npm-audit.json || true
+
+      - name: npm-audit-Report hochladen
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: npm-audit-report
+          path: reports/npm-audit/
+          if-no-files-found: ignore
 
       - name: Cache Dependency-Check data
         uses: actions/cache@v4
@@ -100,3 +119,11 @@ jobs:
         env:
           NVDAPIKEY: ${{ secrets.NVDAPIKEY }}
         run: npm run owasp
+
+      - name: OWASP-Report hochladen
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: owasp-dependency-check
+          path: dependency-check-report/
+          if-no-files-found: ignore
