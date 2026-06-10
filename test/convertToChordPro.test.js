@@ -41,6 +41,9 @@ describe("headerDirectives", () => {
         const h = headerDirectives({ key: "H" });
         expect(h).toEqual(["{key: H}"]);
     });
+    it("ignores invalid metadata values", () => {
+        expect(headerDirectives({ capo: 12, key: "invalid" })).toEqual([]);
+    });
 });
 
 describe("convertToChordPro end-to-end", () => {
@@ -66,6 +69,20 @@ describe("convertToChordPro end-to-end", () => {
         expect(out).toContain("{c: Intro}");
         expect(out).toMatch(/\[E\].*\[H7\].*\[A\]/);
         expect(out).toContain("[E] [H7] [A] [E]");
+    });
+});
+
+describe("convertToChordPro edge cases", () => {
+    it("passes through plain text lines without chords", () => {
+        const out = convertToChordPro({ input: "Nur Liedtext\nOhne Akkorde" });
+        expect(out.trim()).toBe("Nur Liedtext\nOhne Akkorde");
+    });
+
+    it("handles German section labels with rest text", () => {
+        const input = "[Refrain] Zusatz\nE H7\nText hier";
+        const out = convertToChordPro({ input });
+        expect(out).toContain("{soc: Refrain}");
+        expect(out).toContain("Zusatz");
     });
 });
 
