@@ -20,12 +20,7 @@ jobs:
           cache: 'npm'
 
       - name: Dependencies installieren
-        run: |
-          if [ -f package-lock.json ]; then
-            npm ci
-          else
-            npm install
-          fi
+        run: npm ci --ignore-scripts
 
       # Tests + Coverage (Vitest, laut vitest.config.js)
       - name: Tests ausführen (mit Coverage)
@@ -86,12 +81,7 @@ jobs:
           cache: 'npm'
 
       - name: Dependencies installieren
-        run: |
-          if [ -f package-lock.json ]; then
-            npm ci
-          else
-            npm install
-          fi
+        run: npm ci --ignore-scripts
 
       # npm audit – bricht den Build nicht ab, zeigt aber Probleme
       - name: npm audit
