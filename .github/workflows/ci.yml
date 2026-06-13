@@ -95,6 +95,18 @@ jobs:
           name: dist
           path: dist
 
+      - name: FTP-Konfiguration prüfen
+        env:
+          FTP_SERVER: ${{ secrets.FTP_SERVER }}
+          FTP_SERVER_DIR: ${{ secrets.FTP_SERVER_DIR }}
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+        run: |
+          echo "FTP_SERVER=${FTP_SERVER}"
+          echo "FTP_SERVER Länge: ${#FTP_SERVER}"
+          echo "FTP_SERVER_DIR=${FTP_SERVER_DIR}"
+          echo "FTP_SERVER_DIR Länge: ${#FTP_SERVER_DIR}"
+          echo "FTP_USERNAME Länge: ${#FTP_USERNAME}"
+
       - name: Per FTP auf Netcup deployen
         uses: SamKirkland/FTP-Deploy-Action@v4.4.0
         with:
@@ -105,6 +117,7 @@ jobs:
           server-dir: ${{ secrets.FTP_SERVER_DIR }}
           protocol: ftp
           port: 21
+          log-level: verbose
 
   security-scan:
     runs-on: ubuntu-latest
