@@ -1,9 +1,16 @@
-// import React from "react";
 import {Button} from "react-bootstrap";
 
-function ButtonGroup({onConvert, onCopy, onDownload, onClear}) {
+function ButtonGroup({
+    onConvert,
+    onCopy,
+    onDownload,
+    onClear,
+    onNextcloudUpload,
+    onNextcloudSettings,
+    uploadDisabled,
+}) {
     return (
-        <div className="d-flex gap-2">
+        <div className="d-flex flex-wrap gap-2">
             <Button variant="primary" onClick={onConvert}>
                 Umwandeln
             </Button>
@@ -12,6 +19,12 @@ function ButtonGroup({onConvert, onCopy, onDownload, onClear}) {
             </Button>
             <Button onClick={onDownload}>
                 Download als Datei
+            </Button>
+            <Button variant="success" onClick={onNextcloudUpload} disabled={uploadDisabled}>
+                Zu Nextcloud hochladen
+            </Button>
+            <Button variant="outline-secondary" onClick={onNextcloudSettings}>
+                Nextcloud-Einstellungen
             </Button>
             <Button variant="outline-danger" onClick={onClear}>
                 Löschen

@@ -8,23 +8,25 @@ Der ChordPro Converter ist eine **Single-Page Application (SPA)** ohne Backend. 
 
 1. **Präsentationsschicht** — React-Komponenten für Eingabe, Aktionen und Ausgabe
 2. **Konvertierungsschicht** — Reine JavaScript-Module ohne Framework-Abhängigkeit
-3. **Integrationsschicht** — Optionaler WebDAV-Upload nach ownCloud
+3. **Integrationsschicht** — Optionaler WebDAV-Upload nach Nextcloud
 
 ```mermaid
 flowchart TB
     subgraph Browser["Browser (SPA)"]
         UI["React UI<br/>App.jsx + Components"]
         CONV["Converter-Module<br/>chords.js · sections.js · convertToChordPro.js"]
-        OC["saveToOwncloud.js"]
+        NC["nextcloud/client.js · settings.js"]
+        LS["localStorage"]
         UI -->|"convertToChordPro()"| CONV
-        UI -->|"saveFile()"| OC
+        UI -->|"uploadFile()"| NC
+        NC -->|"loadSettings() / saveSettings()"| LS
     end
 
     subgraph External["Externe Dienste"]
-        OWNCLOUD["ownCloud WebDAV"]
+        NEXTCLOUD["Nextcloud WebDAV"]
     end
 
-    OC -->|"PUT (Bearer Token)"| OWNCLOUD
+    NC -->|"PROPFIND + PUT (Basic Auth)"| NEXTCLOUD
 ```
 
 ## Technologie-Stack
@@ -42,17 +44,20 @@ flowchart TB
 
 ```
 src/
-├── main.jsx                 # Einstiegspunkt, Bootstrap-CSS, React-Root
-├── App.jsx                  # Orchestrierung: State, Aktionen, Layout
-├── components/              # Präsentationskomponenten (stateless)
-│   ├── InputFields.jsx      # Metadaten-Felder
-│   ├── TextArea.jsx         # Monospace-Textareas
-│   └── ButtonGroup.jsx      # Umwandeln / Kopieren / Download / Löschen
-├── converter/               # Geschäftslogik (framework-agnostisch)
-│   ├── convertToChordPro.js # Hauptalgorithmus
-│   ├── chords.js            # Akkorderkennung
-│   └── sections.js          # Abschnitts-Parsing
-└── saveToOwncloud.js        # WebDAV-Client
+├── main.jsx                      # Einstiegspunkt, Bootstrap-CSS, React-Root
+├── App.jsx                       # Orchestrierung: State, Aktionen, Layout
+├── components/                   # Präsentationskomponenten (stateless)
+│   ├── InputFields.jsx           # Metadaten-Felder
+│   ├── TextArea.jsx              # Monospace-Textareas
+│   ├── ButtonGroup.jsx           # Aktionen inkl. Nextcloud-Upload
+│   └── NextcloudSettingsModal.jsx # Credentials + Zielordner
+├── converter/                    # Geschäftslogik (framework-agnostisch)
+│   ├── convertToChordPro.js      # Hauptalgorithmus
+│   ├── chords.js                 # Akkorderkennung
+│   └── sections.js               # Abschnitts-Parsing
+└── nextcloud/                    # Nextcloud-Integration
+    ├── client.js                 # WebDAV PROPFIND + PUT
+    └── settings.js               # localStorage-Persistenz
 ```
 
 Die Konverter-Module unter `src/converter/` sind bewusst von React entkoppelt. Sie können unabhängig getestet und theoretisch auch in anderen Kontexten (CLI, API) wiederverwendet werden.
@@ -77,7 +82,9 @@ Vier Aktionen werden an Unterkomponenten weitergereicht:
 
 - **`handleConvert`** — Ruft `convertToChordPro()` auf und schreibt das Ergebnis in `output`
 - **`copyToClipboard`** — Nutzt die Browser-Clipboard-API
-- **`downloadChordProFile`** — Erzeugt einen Blob-Download (`.chord`) und triggert parallel den ownCloud-Upload
+- **`downloadChordProFile`** — Erzeugt einen lokalen Blob-Download (`.chord`)
+- **`handleNextcloudUpload`** — Prüft Einstellungen, Browser-`confirm()`, dann `uploadFile()` mit Alert-Feedback
+- **`handleNextcloudSettings`** — Öffnet Nextcloud-Einstellungen-Modal
 - **`handleClear`** — Setzt alle Eingabefelder und die Ausgabe zurück
 
 ### Präsentationskomponenten
@@ -86,7 +93,8 @@ Alle Komponenten unter `src/components/` sind **stateless**. Sie erhalten Werte 
 
 - `InputFields` — Zweispaltiges Formular (Titel/Interpret links, Capo/Tonart rechts)
 - `TextArea` — Wiederverwendbare Textarea mit Monospace-Font und `white-space: pre`
-- `ButtonGroup` — Vier Bootstrap-Buttons (Umwandeln, Kopieren, Download, Löschen)
+- `ButtonGroup` — Aktionen: Umwandeln, Kopieren, Download, Nextcloud-Upload, Einstellungen, Löschen
+- `NextcloudSettingsModal` — Server-URL, Credentials, Zielordner (Textfeld oder WebDAV-Ordnerliste mit Auswählen/Öffnen)
 
 Es gibt keinen globalen State-Manager (kein Redux, kein Context). Der Umfang der Anwendung rechtfertigt lokalen Komponenten-State.
 
@@ -170,17 +178,47 @@ Die Funktion `convertToChordPro({ title, artist, capo, key, input })` verarbeite
 
 Exportierte Hilfsfunktionen (`mergeChordAndText`, `formatChordOnlyLine`, `headerDirectives`) sind separat testbar.
 
-## Integrationsschicht: ownCloud-Upload
+## Integrationsschicht: Nextcloud-Upload
 
-`saveToOwncloud.js` kapselt einen **WebDAV PUT**-Request über Axios:
+Die Module unter `src/nextcloud/` kapseln WebDAV-Zugriff und lokale Einstellungen:
 
-- Ziel-URL: `https://owncloud.docfaust.de/remote.php/dav/files/<user>/<dateiname>`
-- Authentifizierung: Bearer-Token im `Authorization`-Header
+| Modul | Aufgabe |
+|-------|---------|
+| `client.js` | WebDAV `PROPFIND` (Ordnerliste) und `PUT` (Datei-Upload) via Axios |
+| `settings.js` | Credentials und Zielordner in `localStorage` speichern/laden |
+
+- Ziel-URL: `{baseUrl}/remote.php/dav/files/{username}/{ordner}/{dateiname}`
+- Authentifizierung: Basic Auth mit Benutzername + App-Passwort
 - Content-Type: `text/plain`
+- Dateiname: `{Titel}.chord` (Sonderzeichen werden ersetzt)
 
-Der Upload wird beim Download ausgelöst — der Nutzer erhält zuerst eine lokale `.chord`-Datei, der Upload läuft parallel im Hintergrund. Fehler werden per `alert()` gemeldet.
+```mermaid
+sequenceDiagram
+    participant User
+    participant App
+    participant Settings as settings.js
+    participant Client as client.js
+    participant NC as Nextcloud WebDAV
 
-> **Hinweis:** Token und Server-URL sind derzeit fest im Quellcode hinterlegt. Für produktiven Einsatz sollten diese über Umgebungsvariablen oder eine Build-Zeit-Konfiguration injiziert werden, da sie im gebündelten Frontend-Code sichtbar sind.
+    User->>App: Nextcloud-Einstellungen öffnen
+    App->>Client: listFolders() — Ordner anzeigen
+    Client->>NC: PROPFIND
+    NC-->>Client: Ordnerliste
+    User->>App: Zielordner wählen + Speichern
+    App->>Settings: saveSettings()
+
+    User->>App: Zu Nextcloud hochladen
+    App->>Settings: hasValidSettings() / loadSettings()
+    User->>App: Browser confirm() — OK
+    App->>Client: uploadFile()
+    Client->>NC: PUT {Titel}.chord
+    NC-->>Client: 200/201/204
+    App-->>User: alert() Erfolg oder Fehler
+```
+
+Der Upload ist vom lokalen Download entkoppelt. Bestätigung und Rückmeldung erfolgen über Browser-`confirm()` bzw. `alert()`.
+
+> **Hinweis:** Credentials liegen im Browser-localStorage. Für höhere Sicherheit wäre ein Backend-Proxy denkbar (siehe Erweiterungspunkte). Details: [Nextcloud-Upload](nextcloud-upload.md).
 
 ## Build- und Deployment-Architektur
 
@@ -209,6 +247,9 @@ Tests liegen in `test/` und importieren direkt aus `src/converter/` — ohne Rea
 | Akkord-only-Zeilen | `formatChordOnlyLine` |
 | Header | `headerDirectives` — inkl. deutscher Tonart `H` |
 | End-to-End | `convertToChordPro` — Abschnitte, Merges, mehrere Akkordzeilen |
+| Nextcloud-Client | `buildDavUrl`, `parseFolderList`, `uploadFile`, `listFolders` |
+| Nextcloud-Settings | `loadSettings`, `saveSettings`, `hasValidSettings` |
+| UI-Integration | `App`, `ButtonGroup`, `NextcloudSettingsModal` |
 
 Vitest-Konfiguration (`vitest.config.js`):
 
@@ -257,14 +298,14 @@ flowchart TB
 | Lokaler State statt State-Manager | Geringe Komplexität, wenige State-Variablen |
 | Zeilenbasierter Parser statt AST | Eingabeformat ist textbasiert und zeilenorientiert; einfacher und robuster |
 | Reguläre Ausdrücke für Akkorde | Ausreichend für gängige Akkordnotationen; gut testbar |
-| Client-seitiger Upload | Kein Backend nötig; Trade-off: Credentials im Frontend sichtbar |
+| Client-seitiger Upload | Kein Backend nötig; Trade-off: Credentials in localStorage |
+| Basic Auth mit App-Passwort | Nextcloud-Standard für WebDAV; sicherer als Hauptpasswort |
 | Monospace-Textareas | Visuelle Ausrichtung von Akkordzeilen über Textzeilen |
 
 ## Erweiterungspunkte
 
 Mögliche zukünftige Architekturänderungen, ohne den bestehenden Aufbau zu brechen:
 
-- **Umgebungsvariablen** — ownCloud-URL und Token über `import.meta.env` (Vite) konfigurieren
 - **Backend-Proxy** — Upload über einen Server, um Credentials aus dem Browser zu entfernen
 - **CLI-Modul** — `src/converter/` ist bereits extrahiert und könnte als eigenständiges npm-Paket oder Node-CLI dienen
 - **Datei-Import** — Drag & Drop oder File-Input in der UI-Schicht, Konvertierung bleibt unverändert
