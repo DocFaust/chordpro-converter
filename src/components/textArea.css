@@ -1,0 +1,6 @@
+.chordpro-editor {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "DejaVu Sans Mono", "Ubuntu Mono", "Courier New", monospace !important;
+  white-space: pre;
+  font-size: 0.95rem;
+}

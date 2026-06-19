@@ -2,21 +2,33 @@
 import { isChordLine, splitChordLinePreserveSpaces } from "./chords.js";
 import { parseLabeledLine, labelToDirective } from "./sections.js";
 
-// Verbindet Akkordzeile mit Textzeile
+// Verbindet Akkordzeile mit Textzeile (Spaltenposition → Textindex)
 export function mergeChordAndText(chords, text) {
-    let combined = "";
-    let textIndex = 0;
-    const parts = splitChordLinePreserveSpaces(chords);
-    for (const part of parts) {
-        if (!part.trim()) {
-            combined += text.slice(textIndex, textIndex + part.length);
-            textIndex += part.length;
-        } else {
-            combined += `[${part.trim()}]`;
+    const placements = [];
+    let column = 0;
+    for (const part of splitChordLinePreserveSpaces(chords)) {
+        if (part.trim()) {
+            placements.push({ column, chord: part.trim() });
+        }
+        column += part.length;
+    }
+
+    let result = "";
+    let placementIndex = 0;
+    for (let i = 0; i <= text.length; i++) {
+        while (placementIndex < placements.length && placements[placementIndex].column === i) {
+            result += `[${placements[placementIndex].chord}]`;
+            placementIndex++;
+        }
+        if (i < text.length) {
+            result += text[i];
         }
     }
-    combined += text.slice(textIndex);
-    return combined;
+    while (placementIndex < placements.length) {
+        result += `[${placements[placementIndex].chord}]`;
+        placementIndex++;
+    }
+    return result;
 }
 
 export function formatChordOnlyLine(chordBuffer) {
@@ -84,7 +96,7 @@ export function convertToChordPro({ title, artist, capo, key, input }) {
         if (!chordBuffer) {
             result.push(trimmed);
         } else {
-            result.push(mergeChordAndText(chordBuffer, trimmed));
+            result.push(mergeChordAndText(chordBuffer, line));
             chordBuffer = "";
         }
     }
