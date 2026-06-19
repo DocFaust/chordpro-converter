@@ -24,6 +24,10 @@ describe("mergeChordAndText", () => {
         expect(merged).toContain("[A]");
         expect(merged.length).toBeGreaterThan(text.length);
     });
+
+    it("aligns chords by column position", () => {
+        expect(mergeChordAndText("A  B  C", "La Le Lu")).toBe("[A]La [B]Le [C]Lu");
+    });
 });
 
 describe("formatChordOnlyLine", () => {

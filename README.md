@@ -9,12 +9,13 @@ Webbasiertes Tool zum Umwandeln von Akkordblättern in das [ChordPro](https://ww
 - Abschnittsüberschriften in ChordPro-Direktiven umwandeln
 - Ausgabe kopieren oder als `.chord`-Datei herunterladen
 - Alle Felder mit einem Klick löschen, um ein neues Lied zu konvertieren
-- Optionaler Upload nach ownCloud per WebDAV
+- Upload nach Nextcloud per WebDAV (mit lokaler Credential-Speicherung)
 
 ## Dokumentation
 
 - [Eingabeformat](docs/input-format.md) — Ultimate-Guitar-Tabs kopieren, bereinigen und konvertieren
 - [Architektur](docs/architecture.md) — Schichten, Datenfluss, Projektstruktur und CI/CD
+- [Nextcloud-Upload](docs/nextcloud-upload.md) — Einrichtung, Upload und Fehlerbehebung
 
 ## Voraussetzungen
 
@@ -55,9 +56,11 @@ Der Build landet im Verzeichnis `dist/`.
 | `npm run sonar` | SonarCloud-Analyse lokal ausführen |
 | `npm run owasp` | OWASP Dependency-Check (benötigt `NVDAPIKEY`) |
 
-## ownCloud-Konfiguration
+## Nextcloud-Upload
 
-Der optionale Upload in `src/saveToOwncloud.js` verwendet WebDAV mit Bearer-Token. Server-URL, Benutzerpfad und Token müssen dort an die eigene Umgebung angepasst werden, bevor der Upload genutzt wird.
+ChordPro-Dateien können per WebDAV auf Nextcloud hochgeladen werden. Server-URL, Benutzername, App-Passwort und Zielordner werden in der App konfiguriert und lokal im Browser gespeichert.
+
+Einrichtung und Fehlerbehebung: [Nextcloud-Upload](docs/nextcloud-upload.md)
 
 ## Tests
 
