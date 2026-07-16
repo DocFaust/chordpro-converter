@@ -13,10 +13,10 @@ jobs:
     environment: General
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Node einrichten
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: '24'
           cache: 'npm'
@@ -30,7 +30,7 @@ jobs:
 
       - name: Test- & Coverage-Artefakte hochladen
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: tests-and-coverage
           path: |
@@ -43,7 +43,7 @@ jobs:
 
       - name: Lint-Report hochladen
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: lint-report
           path: reports/eslint/
@@ -53,7 +53,7 @@ jobs:
         run: npm run build
 
       - name: Build-Artefakt hochladen
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: dist
           path: dist/
@@ -90,7 +90,7 @@ jobs:
           git branch -r --contains ${{ github.sha }} | grep -q 'origin/master$'
 
       - name: Build-Artefakt herunterladen
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: dist
           path: dist
@@ -124,10 +124,10 @@ jobs:
     environment: General
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Node einrichten
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: '24'
           cache: 'npm'
@@ -164,7 +164,7 @@ jobs:
 
       - name: OWASP-Report hochladen
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: owasp-dependency-check
           path: dependency-check-report/
