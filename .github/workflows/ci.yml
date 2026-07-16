@@ -58,6 +58,12 @@ jobs:
           name: dist
           path: dist/
           if-no-files-found: error
+          
+      - name: Java für Sonar einrichten
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
 
       # SonarCloud-Analyse mit Coverage & Testreports
       - name: SonarCloud Scan
