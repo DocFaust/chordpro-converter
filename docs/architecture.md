@@ -261,7 +261,7 @@ Vitest-Konfiguration (`vitest.config.js`):
 GitHub Actions ist in drei getrennte Workflows aufgeteilt:
 
 - **CI** (`.github/workflows/ci.yml`) läuft bei Push/PR auf `main`/`master` und prüft schlank, ob der Stand installierbar, testbar, lintbar und baubar ist.
-- **SonarQube** (`.github/workflows/sonarqube.yml`) läuft täglich sowie manuell und erzeugt Coverage- und ESLint-Daten für den Sonar-Scan.
+- **SonarQube** (`.github/workflows/sonarqube.yml`) läuft bei Push/PR sowie manuell und erzeugt Coverage- und ESLint-Daten für den Sonar-Scan.
 - **OWASP Dependency Check** (`.github/workflows/owasp.yml`) läuft täglich sowie manuell und erstellt Sicherheitsreports für `npm audit` und OWASP Dependency-Check.
 
 **Workflow `CI`:**
