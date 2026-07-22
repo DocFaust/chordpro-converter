@@ -283,7 +283,7 @@ GitHub Actions ist in vier getrennte Workflows aufgeteilt:
 
 1. `npm ci` → Dependencies
 2. `npm audit` → Abhängigkeitsprüfung, nicht blockierend (Artefakt: `npm-audit-report`)
-3. `npm run owasp` → OWASP Dependency-Check (Artefakt: `owasp-dependency-check`)
+3. `npm run owasp` → OWASP Dependency-Check auf Basis von `package.json` und `package-lock.json` (Artefakt: `owasp-dependency-check`)
 
 **Workflow `Trivy Security Scan`:**
 

@@ -54,7 +54,7 @@ Der Build landet im Verzeichnis `dist/`.
 | `npm run lint:ci` | ESLint mit Checkstyle-Report (XML) |
 | `npm run lint:sonar` | ESLint mit JSON-Report für SonarCloud |
 | `npm run sonar` | SonarCloud-Analyse lokal ausführen |
-| `npm run owasp` | OWASP Dependency-Check (benötigt `NVDAPIKEY`) |
+| `npm run owasp` | OWASP Dependency-Check auf Basis von `package.json` und `package-lock.json` (benötigt `NVDAPIKEY`) |
 
 ## Nextcloud-Upload
 
