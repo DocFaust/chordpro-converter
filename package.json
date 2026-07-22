@@ -17,7 +17,7 @@
     "lint:sonar": "eslint src --ext .ts,.tsx,.js,.jsx -f json -o reports/eslint/eslint-sonar.json"
   },
   "dependencies": {
-    "axios": "^1.15.2",
+    "axios": "^1.18.1",
     "bootstrap": "^5.3.8",
     "dotenv": "^17.4.2",
     "react": "^19.2.5",
