@@ -8,7 +8,7 @@ on:
   pull_request:
 
 jobs:
-  build-test-lint-sonar:
+  build-test-lint:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -23,30 +23,11 @@ jobs:
       - name: Dependencies installieren
         run: npm ci --ignore-scripts
 
-      # Tests + Coverage (Vitest, laut vitest.config.js)
       - name: Tests ausführen (mit Coverage)
         run: npm run test:ci
 
-      - name: Test- & Coverage-Artefakte hochladen
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: tests-and-coverage
-          path: |
-            reports/tests/junit.xml
-            coverage/
-          if-no-files-found: ignore
-
-      - name: Lint für Sonar ausführen
-        run: npm run lint:sonar
-
-      - name: Lint-Report hochladen
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: lint-report
-          path: reports/eslint/
-          if-no-files-found: ignore
+      - name: Lint ausführen
+        run: npm run lint:ci
 
       - name: Produktions-Build
         run: npm run build
@@ -57,26 +38,10 @@ jobs:
           name: dist
           path: dist/
           if-no-files-found: error
-          
-      - name: Java für Sonar einrichten
-        uses: actions/setup-java@v5
-        with:
-          distribution: temurin
-          java-version: '21'
-
-      # SonarCloud-Analyse mit Coverage & Testreports
-      - name: SonarCloud Scan
-        uses: SonarSource/sonarqube-scan-action@v8
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        with:
-          args: >
-            -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
-            -Dsonar.eslint.reportPaths=reports/eslint/eslint-sonar.json
 
   deploy:
     name: Auf Netcup Webspace deployen
-    needs: build-test-lint-sonar
+    needs: build-test-lint
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
     environment: production
@@ -123,53 +88,3 @@ jobs:
           protocol: ftp
           port: 21
           log-level: verbose
-
-  security-scan:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v7
-
-      - name: Node einrichten
-        uses: actions/setup-node@v7
-        with:
-          node-version: '24'
-          cache: 'npm'
-
-      - name: Dependencies installieren
-        run: npm ci --ignore-scripts
-
-      # npm audit – bricht den Build nicht ab, zeigt aber Probleme
-      - name: npm audit
-        run: |
-          mkdir -p reports/npm-audit
-          npm audit --audit-level=high --json > reports/npm-audit/npm-audit.json || true
-
-      - name: npm-audit-Report hochladen
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: npm-audit-report
-          path: reports/npm-audit/
-          if-no-files-found: ignore
-
-      - name: Cache Dependency-Check data
-        uses: actions/cache@v6
-        with:
-          path: dc-data
-          key: dc-data-${{ runner.os }}
-          restore-keys: |
-            dc-data-${{ runner.os }}-
-
-      - name: OWASP Dependency Check
-        env:
-          NVDAPIKEY: ${{ secrets.NVDAPIKEY }}
-        run: npm run owasp
-
-      - name: OWASP-Report hochladen
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: owasp-dependency-check
-          path: dependency-check-report/
-          if-no-files-found: ignore

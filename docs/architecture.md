@@ -258,17 +258,27 @@ Vitest-Konfiguration (`vitest.config.js`):
 
 ## CI/CD-Pipeline
 
-GitHub Actions (`.github/workflows/ci.yml`) prüft bei Push/PR auf `main`/`master` Qualität und Sicherheit in zwei parallelen Jobs:
+GitHub Actions ist in drei getrennte Workflows aufgeteilt:
 
-**Job `build-test-lint-sonar`:**
+- **CI** (`.github/workflows/ci.yml`) läuft bei Push/PR auf `main`/`master` und prüft schlank, ob der Stand installierbar, testbar, lintbar und baubar ist.
+- **SonarQube** (`.github/workflows/sonarqube.yml`) läuft täglich sowie manuell und erzeugt Coverage- und ESLint-Daten für den Sonar-Scan.
+- **OWASP Dependency Check** (`.github/workflows/owasp.yml`) läuft täglich sowie manuell und erstellt Sicherheitsreports für `npm audit` und OWASP Dependency-Check.
+
+**Workflow `CI`:**
 
 1. `npm ci` → Dependencies
-2. `npm run test:ci` → Tests + Coverage (Artefakt: `tests-and-coverage`)
-3. `npm run lint:sonar` → ESLint JSON-Report (Artefakt: `lint-report`)
+2. `npm run test:ci` → Tests + Coverage
+3. `npm run lint:ci` → ESLint-Validierung
 4. `npm run build` → Produktions-Build (Artefakt: `dist`)
-5. SonarCloud-Scan mit Coverage- und Lint-Reports
 
-**Job `security-scan`:**
+**Workflow `SonarQube`:**
+
+1. `npm ci` → Dependencies
+2. `npm run test:ci` → Coverage für Sonar
+3. `npm run lint:sonar` → ESLint JSON-Report für Sonar
+4. SonarQube-Scan mit `SONAR_TOKEN`
+
+**Workflow `OWASP Dependency Check`:**
 
 1. `npm ci` → Dependencies
 2. `npm audit` → Abhängigkeitsprüfung, nicht blockierend (Artefakt: `npm-audit-report`)
@@ -279,14 +289,9 @@ OWASP-Reports liegen nach dem Lauf unter **Artifacts → `owasp-dependency-check
 ```mermaid
 flowchart TB
     subgraph GHA["GitHub Actions"]
-        T1["Tests + Coverage"]
-        L1["ESLint → Sonar"]
-        B1["Vite Build → dist/"]
-        S1["SonarCloud Scan"]
-        O1["OWASP Check"]
-        A1["npm audit"]
-        T1 --> S1
-        L1 --> S1
+        CI1["CI: Test + Lint + Build"]
+        SQ1["SonarQube: Coverage + Scan"]
+        OW1["OWASP: npm audit + Dependency Check"]
     end
 ```
 

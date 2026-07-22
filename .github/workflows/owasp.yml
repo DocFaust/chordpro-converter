@@ -1,0 +1,56 @@
+name: OWASP Dependency Check
+
+on:
+  schedule:
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+
+jobs:
+  security-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Node einrichten
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      - name: Dependencies installieren
+        run: npm ci --ignore-scripts
+
+      - name: npm audit
+        run: |
+          mkdir -p reports/npm-audit
+          npm audit --audit-level=high --json > reports/npm-audit/npm-audit.json || true
+
+      - name: npm-audit-Report hochladen
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: npm-audit-report
+          path: reports/npm-audit/
+          if-no-files-found: ignore
+
+      - name: Cache Dependency-Check data
+        uses: actions/cache@v6
+        with:
+          path: dc-data
+          key: dc-data-${{ runner.os }}
+          restore-keys: |
+            dc-data-${{ runner.os }}-
+
+      - name: OWASP Dependency Check
+        env:
+          NVDAPIKEY: ${{ secrets.NVDAPIKEY }}
+        run: npm run owasp
+
+      - name: OWASP-Report hochladen
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: owasp-dependency-check
+          path: dependency-check-report/
+          if-no-files-found: ignore
