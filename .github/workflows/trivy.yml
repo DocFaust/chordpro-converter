@@ -19,7 +19,34 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
 
-      - name: Trivy Scan ausfuehren
+      - name: Trivy Textreport erzeugen
+        id: trivy_text
+        continue-on-error: true
+        uses: aquasecurity/trivy-action@0.35.0
+        with:
+          scan-type: fs
+          scan-ref: .
+          format: table
+          output: trivy-results.txt
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          vuln-type: os,library
+          scanners: vuln,misconfig,secret
+          exit-code: '1'
+
+      - name: Trivy-Summary in Job anzeigen
+        if: always()
+        run: |
+          echo "## Trivy Security Scan" >> "$GITHUB_STEP_SUMMARY"
+          echo >> "$GITHUB_STEP_SUMMARY"
+          echo "Der komplette Report liegt im Artefakt \`trivy-results\`." >> "$GITHUB_STEP_SUMMARY"
+          echo >> "$GITHUB_STEP_SUMMARY"
+          echo '```text' >> "$GITHUB_STEP_SUMMARY"
+          sed -n '1,200p' trivy-results.txt >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Trivy SARIF erzeugen
+        if: always()
         uses: aquasecurity/trivy-action@0.35.0
         with:
           scan-type: fs
@@ -30,7 +57,7 @@ jobs:
           ignore-unfixed: true
           vuln-type: os,library
           scanners: vuln,misconfig,secret
-          exit-code: '1'
+          exit-code: '0'
 
       - name: SARIF in GitHub Code Scanning hochladen
         if: always()
@@ -43,5 +70,13 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: trivy-results
-          path: trivy-results.sarif
+          path: |
+            trivy-results.txt
+            trivy-results.sarif
           if-no-files-found: error
+
+      - name: Workflow bei HIGH/CRITICAL Findings fehlschlagen lassen
+        if: steps.trivy_text.outcome == 'failure'
+        run: |
+          echo "Trivy hat HIGH oder CRITICAL Findings erkannt. Details stehen oben in der Job Summary und im Artefakt trivy-results." >&2
+          exit 1
