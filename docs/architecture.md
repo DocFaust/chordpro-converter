@@ -258,11 +258,12 @@ Vitest-Konfiguration (`vitest.config.js`):
 
 ## CI/CD-Pipeline
 
-GitHub Actions ist in drei getrennte Workflows aufgeteilt:
+GitHub Actions ist in vier getrennte Workflows aufgeteilt:
 
 - **CI** (`.github/workflows/ci.yml`) läuft bei Push/PR auf `main`/`master` und prüft schlank, ob der Stand installierbar, testbar, lintbar und baubar ist.
 - **SonarQube** (`.github/workflows/sonarqube.yml`) läuft bei Push/PR sowie manuell und erzeugt Coverage- und ESLint-Daten für den Sonar-Scan.
 - **OWASP Dependency Check** (`.github/workflows/owasp.yml`) läuft täglich sowie manuell und erstellt Sicherheitsreports für `npm audit` und OWASP Dependency-Check.
+- **Trivy Security Scan** (`.github/workflows/trivy.yml`) läuft bei Push/PR, täglich sowie manuell und prüft Repository-Inhalte auf Schwachstellen, Fehlkonfigurationen und Secrets.
 
 **Workflow `CI`:**
 
@@ -284,6 +285,13 @@ GitHub Actions ist in drei getrennte Workflows aufgeteilt:
 2. `npm audit` → Abhängigkeitsprüfung, nicht blockierend (Artefakt: `npm-audit-report`)
 3. `npm run owasp` → OWASP Dependency-Check (Artefakt: `owasp-dependency-check`)
 
+**Workflow `Trivy Security Scan`:**
+
+1. Trivy-Dateisystemscan über das Repository
+2. Prüfung auf `HIGH`/`CRITICAL`-Findings in Libraries, OS-Paketen, Fehlkonfigurationen und Secrets
+3. Upload des SARIF-Reports nach GitHub Code Scanning
+4. Artefakt `trivy-results` für den Rohreport
+
 OWASP-Reports liegen nach dem Lauf unter **Artifacts → `owasp-dependency-check`** in der Actions-Run-Ansicht; lokal unter `dependency-check-report/dependency-check-report.html`.
 
 ```mermaid
@@ -292,6 +300,7 @@ flowchart TB
         CI1["CI: Test + Lint + Build"]
         SQ1["SonarQube: Coverage + Scan"]
         OW1["OWASP: npm audit + Dependency Check"]
+        TV1["Trivy: Vulns + Misconfig + Secrets"]
     end
 ```
 
