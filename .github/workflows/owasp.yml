@@ -34,14 +34,6 @@ jobs:
           path: reports/npm-audit/
           if-no-files-found: ignore
 
-      - name: Cache Dependency-Check data
-        uses: actions/cache@v6
-        with:
-          path: dc-data
-          key: dc-data-${{ runner.os }}
-          restore-keys: |
-            dc-data-${{ runner.os }}-
-
       - name: OWASP Dependency Check
         env:
           NVDAPIKEY: ${{ secrets.NVDAPIKEY }}
