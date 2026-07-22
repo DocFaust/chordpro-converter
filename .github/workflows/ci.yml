@@ -10,7 +10,6 @@ on:
 jobs:
   build-test-lint-sonar:
     runs-on: ubuntu-latest
-    environment: General
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -127,7 +126,6 @@ jobs:
 
   security-scan:
     runs-on: ubuntu-latest
-    environment: General
     steps:
       - name: Checkout
         uses: actions/checkout@v7
