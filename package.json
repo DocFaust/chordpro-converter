@@ -39,7 +39,7 @@
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.3",
     "globals": "^17.5.0",
-    "happy-dom": "^20.10.2",
+    "happy-dom": "^20.11.0",
     "owasp-dependency-check": "^1.0.1",
     "vite": "^8.0.10",
     "vitest": "^4.1.5"
