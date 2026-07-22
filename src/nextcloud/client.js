@@ -97,7 +97,7 @@ export async function listFolders(config, folderPath = "") {
         const currentFolderName = folderPath.split("/").filter(Boolean).at(-1);
         return folders.filter((name) => name !== currentFolderName && name !== config.username);
     } catch (error) {
-        throw new Error(formatUploadError(error));
+        throw new Error(formatUploadError(error), { cause: error });
     }
 }
 
@@ -125,6 +125,6 @@ export async function uploadFile(config, folderPath, fileName, content) {
             || error.message?.includes("Einstellungen unvollständig")) {
             throw error;
         }
-        throw new Error(formatUploadError(error));
+        throw new Error(formatUploadError(error), { cause: error });
     }
 }
