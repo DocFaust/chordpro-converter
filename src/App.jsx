@@ -7,6 +7,7 @@ import NextcloudSettingsModal from "./components/NextcloudSettingsModal";
 import {sanitizeFileName, uploadFile} from "./nextcloud/client.js";
 import {hasValidSettings, loadSettings} from "./nextcloud/settings.js";
 import {Container} from "react-bootstrap";
+import AccountPanel from "./components/AccountPanel";
 
 function App() {
     const [input, setInput] = useState("");
@@ -87,6 +88,7 @@ function App() {
     return (
         <Container className="mt-4">
             <h1>ChordPro Converter</h1>
+            <AccountPanel />
             <InputFields
                 title={title}
                 setTitle={setTitle}

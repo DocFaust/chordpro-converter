@@ -3,6 +3,12 @@ import { render, screen, cleanup, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import App from "../src/App.jsx";
 
+vi.mock("../src/components/AccountPanel.jsx", () => ({
+    default: function AccountPanel() {
+        return null;
+    },
+}));
+
 vi.mock("../src/nextcloud/settings.js", () => ({
     loadSettings: vi.fn(),
     saveSettings: vi.fn(),

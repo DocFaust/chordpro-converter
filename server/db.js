@@ -108,6 +108,7 @@ export function openDatabase(databasePath, options = {}) {
     mkdirSync(path.dirname(resolvedPath), { recursive: true });
     const database = new DatabaseSync(resolvedPath);
     try {
+        database.exec("PRAGMA busy_timeout = 5000");
         database.exec("PRAGMA journal_mode = WAL");
         database.exec("PRAGMA foreign_keys = ON");
         const migrations = options.migrations ?? loadMigrations(options.schemaDirectory);

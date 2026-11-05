@@ -46,21 +46,28 @@ describe("openDatabase", () => {
         const foreignKeys = database.prepare("PRAGMA foreign_keys").get();
         const versions = database.prepare("SELECT version FROM schema_migrations").all();
 
+        const busyTimeout = database.prepare("PRAGMA busy_timeout").get();
         expect(mode.journal_mode).toBe("wal");
         expect(foreignKeys.foreign_keys).toBe(1);
-        expect(versions.map((row) => row.version)).toEqual([1]);
+        expect(busyTimeout.timeout).toBe(5000);
+        expect(versions.map((row) => row.version)).toEqual([1, 2]);
         database.close();
     });
 
     it("öffnet dieselbe Datei erneut, ohne den Schema-Stand zu wiederholen", () => {
         const databasePath = path.join(temporaryDirectory(), "cpc.sqlite");
         const first = openDatabase(databasePath);
-        const appliedAt = first.prepare("SELECT applied_at FROM schema_migrations WHERE version = 1").get();
+        const applied = first.prepare(
+            "SELECT version, applied_at FROM schema_migrations ORDER BY version",
+        ).all();
         first.close();
 
         const second = openDatabase(databasePath);
-        const rows = second.prepare("SELECT version, applied_at FROM schema_migrations").all();
-        expect(rows).toEqual([{ version: 1, applied_at: appliedAt.applied_at }]);
+        const rows = second.prepare(
+            "SELECT version, applied_at FROM schema_migrations ORDER BY version",
+        ).all();
+        expect(rows).toEqual(applied);
+        expect(rows.map((row) => row.version)).toEqual([1, 2]);
         second.close();
     });
 
@@ -71,13 +78,13 @@ describe("openDatabase", () => {
         expect(() => openDatabase(databasePath, {
             migrations: [
                 ...baseline,
-                { version: 2, sql: "NOT SQL" },
+                { version: 3, sql: "NOT SQL" },
             ],
-        })).toThrow(/Schema-Stand 2/);
+        })).toThrow(/Schema-Stand 3/);
 
         const database = openDatabase(databasePath);
-        const versions = database.prepare("SELECT version FROM schema_migrations").all();
-        expect(versions.map((row) => row.version)).toEqual([1]);
+        const versions = database.prepare("SELECT version FROM schema_migrations ORDER BY version").all();
+        expect(versions.map((row) => row.version)).toEqual([1, 2]);
         database.close();
     });
 

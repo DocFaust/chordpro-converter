@@ -29,7 +29,9 @@ npm ci
 npm run dev
 ```
 
-Die Anwendung ist anschließend unter `http://localhost:5173` erreichbar.
+Die Anwendung ist anschließend unter `http://localhost:5173` erreichbar. Die Umwandlung nach ChordPro braucht keine Anmeldung.
+
+Für Einrichtung und Anmeldung zusätzlich das Backend starten. Das Frontend leitet `/api` an `http://127.0.0.1:3000` weiter und behält dabei den Host der Seite, damit die Origin-Prüfung greift.
 
 ### Backend
 
@@ -42,6 +44,21 @@ npm run server
 Es lauscht standardmäßig auf `http://127.0.0.1:3000`. `GET /api/health` prüft die Erreichbarkeit und liefert keine Fachdaten.
 
 Die SQLite-Datei liegt unter `data/cpc.sqlite`. Ein anderer Pfad wird mit der Umgebungsvariable `DATABASE_PATH` gesetzt. `HOST` und `PORT` ändern die Bind-Adresse. Die Datenbankdatei wird nicht versioniert.
+
+### Konten
+
+Es gibt keine Selbstregistrierung und keinen E-Mail-Versand. Das erste Administratorkonto entsteht einmalig über den Einrichtungsdialog. Dafür setzt der Betreiber `SETUP_TOKEN` in der Umgebung des Serverprozesses. Der Wert gehört nicht in das Frontend, in Logs oder in diese Datei. Weitere Passwörter, auch temporäre nach einem Zurücksetzen, teilt der Administrator persönlich mit.
+
+Das Sitzungs-Cookie `cpc_session` ist HTTP-only und `SameSite=Strict`. Es wird mit einer Lebensdauer von 400 Tagen gesetzt. Das ist eine bewusste technische Entscheidung, damit die Anmeldung auf Tablets einen Browserneustart übersteht. 400 Tage entsprechen der üblichen Obergrenze, die Browser für Cookie-Lebensdauern akzeptieren. Eine fachliche Sitzungsdauer gibt es nicht: der Server speichert kein Ablaufdatum und kann jede Sitzung sofort widerrufen.
+
+`COOKIE_SECURE=true` setzen, wenn TLS vor dem Prozess endet, etwa an einem Reverse Proxy. Dann erwartet die Anwendung für schreibende Anfragen die Origin `https://<Host>` und markiert das Cookie als `Secure`. Weitergeleitete Proxy-Header wie `X-Forwarded-Proto` oder `X-Forwarded-For` werden nicht ausgewertet. Ohne `COOKIE_SECURE` gilt das Schema der direkten Verbindung.
+
+Schreibende Anfragen brauchen `Content-Type: application/json`, den Header `X-CPC-Request: 1` und eine Origin, die zu Schema und Host passt. Es wird kein CORS-Zugriff für fremde Origins freigegeben.
+
+| Antwortcode | Bedeutung |
+| --- | --- |
+| `origin_missing` | Schreibende Anfrage ohne Origin. Browser senden den Header automatisch. |
+| `origin_mismatch` | Origin passt nicht zu Schema und Host. Bei TLS-Terminierung am Proxy `COOKIE_SECURE=true` setzen. |
 
 ### Produktions-Build
 
