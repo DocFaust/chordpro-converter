@@ -23,4 +23,4 @@ export function runDirect(entry = process.argv[1]) {
     });
 }
 
-runDirect();
+void runDirect();
