@@ -70,8 +70,12 @@ Eine Iteration nicht als abgeschlossen melden, solange ihre verbindlichen Akzept
 
 ## 5. Git und Änderungsumfang
 
-- Keine Commits ohne ausdrücklichen Auftrag.
-- Kein Push ohne ausdrücklichen Auftrag.
+- Für jede beauftragte Implementierungsiteration einen eigenen Feature-Branch von aktuellem `master` verwenden.
+- Nach erfolgreicher Umsetzung und den vorgeschriebenen Qualitätsprüfungen die Änderungen der Iteration committen, den Branch pushen und einen Pull Request gegen `master` eröffnen. Dafür ist keine separate Freigabe erforderlich.
+- Vor Commit und Push den Git-Status und den Diff prüfen; nur beauftragte Änderungen aufnehmen. Fremde oder unklare Änderungen nicht ungefragt committen.
+- Bei fehlgeschlagenen Prüfungen oder unerfüllten Akzeptanzkriterien keinen PR als fertig melden; Probleme dokumentieren und Rücksprache halten.
+- Pull Requests niemals selbst mergen. Merge und Deployment erfolgen nur nach ausdrücklicher Freigabe.
+- Für Aufgaben außerhalb einer beauftragten Implementierungsiteration nur auf ausdrücklichen Auftrag committen oder pushen.
 - Keine Änderungen außerhalb des beauftragten Umfangs.
 - Keine ungefragten Formatierungen anderer Dateien.
 - Bestehende Änderungen anderer Agenten oder des Benutzers nicht überschreiben.
