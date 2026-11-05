@@ -45,4 +45,15 @@ export default [
       ],
     },
   },
+  {
+    files: ["server/**/*.js"],
+    languageOptions: {
+      ecmaVersion: "latest",
+      sourceType: "module",
+      globals: globals.node,
+    },
+    rules: {
+      ...js.configs.recommended.rules,
+    },
+  },
 ]

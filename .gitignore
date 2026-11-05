@@ -8,6 +8,12 @@ pnpm-debug.log*
 lerna-debug.log*
 
 node_modules
+
+# Lokale SQLite-Datenbank
+data/
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
 reports/
 coverage/
 dependency-check-bin/

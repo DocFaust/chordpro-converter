@@ -15,7 +15,7 @@ export default defineConfig({
             reportsDirectory: "coverage",
             enabled: true,
             reporter: ["text", "lcov", "cobertura", "clover"],
-            include: ["src/**/*.{js,jsx}"],
+            include: ["src/**/*.{js,jsx}", "server/**/*.js"],
             exclude: [
                 "src/main.jsx",
                 "src/convertToChordPro.js",
