@@ -74,6 +74,7 @@ describe("AccountPanel", () => {
         await user.click(screen.getByRole("button", { name: "Einrichtung abschließen" }));
 
         expect(await screen.findByText(/Angemeldet als/)).toBeInTheDocument();
+        expect(screen.getByLabelText("Benutzername")).toHaveValue("");
         expect(screen.getAllByText("Ada").length).toBeGreaterThan(0);
         expect(screen.getByText(/keine E-Mail/)).toBeInTheDocument();
         expect(screen.getByRole("button", { name: "Abmelden" })).toHaveClass("btn-lg");
@@ -104,6 +105,23 @@ describe("AccountPanel", () => {
         await user.click(screen.getByRole("button", { name: "Anmelden" }));
         expect(await screen.findByText("Ben")).toBeInTheDocument();
         expect(screen.queryByRole("button", { name: "Konto anlegen" })).not.toBeInTheDocument();
+    });
+
+    it("öffnet das Anlegeformular nach der Anmeldung ohne den eigenen Benutzernamen", async () => {
+        const user = userEvent.setup();
+        loadSession
+            .mockResolvedValueOnce({ phase: "login", account: null })
+            .mockResolvedValueOnce({ phase: "authenticated", account: admin });
+        login.mockResolvedValue(admin);
+        render(<AccountPanel />);
+
+        await user.type(await screen.findByLabelText("Benutzername"), "Ada");
+        await user.type(screen.getByLabelText("Passwort"), "geheim");
+        await user.click(screen.getByRole("button", { name: "Anmelden" }));
+
+        expect(await screen.findByRole("button", { name: "Konto anlegen" })).toBeInTheDocument();
+        expect(screen.getByLabelText("Benutzername")).toHaveValue("");
+        expect(screen.getByLabelText("Passwort")).toHaveValue("");
     });
 
     it("legt ein Konto an, setzt zurück und deaktiviert mit Bestätigung", async () => {

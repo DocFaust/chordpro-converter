@@ -220,6 +220,7 @@ export default function AccountPanel() {
                         await setupAccount({ username, password, setupToken });
                         setSetupToken("");
                         setPassword("");
+                        setUsername("");
                         setNotice("Das Administratorkonto wurde angelegt.");
                         await applySession(await loadSession());
                     });
@@ -238,6 +239,7 @@ export default function AccountPanel() {
                     run(async () => {
                         await login({ username, password });
                         setPassword("");
+                        setUsername("");
                         await applySession(await loadSession());
                     });
                 }}>
