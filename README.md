@@ -19,7 +19,7 @@ Webbasiertes Tool zum Umwandeln von Akkordblättern in das [ChordPro](https://ww
 
 ## Voraussetzungen
 
-- [Node.js](https://nodejs.org/) 22 (empfohlen, entspricht der CI-Konfiguration)
+- [Node.js](https://nodejs.org/) 24 LTS (Entwicklung und CI)
 - npm
 
 ## Installation und Entwicklung
@@ -30,6 +30,18 @@ npm run dev
 ```
 
 Die Anwendung ist anschließend unter `http://localhost:5173` erreichbar.
+
+### Backend
+
+Das Backend startet unabhängig vom Vite-Frontend:
+
+```bash
+npm run server
+```
+
+Es lauscht standardmäßig auf `http://127.0.0.1:3000`. `GET /api/health` prüft die Erreichbarkeit und liefert keine Fachdaten.
+
+Die SQLite-Datei liegt unter `data/cpc.sqlite`. Ein anderer Pfad wird mit der Umgebungsvariable `DATABASE_PATH` gesetzt. `HOST` und `PORT` ändern die Bind-Adresse. Die Datenbankdatei wird nicht versioniert.
 
 ### Produktions-Build
 
@@ -44,7 +56,8 @@ Der Build landet im Verzeichnis `dist/`.
 
 | Skript | Beschreibung |
 |--------|--------------|
-| `npm run dev` | Entwicklungsserver mit Hot Module Replacement |
+| `npm run dev` | Frontend-Entwicklungsserver mit Hot Module Replacement |
+| `npm run server` | Backend unabhängig vom Frontend starten |
 | `npm run build` | Produktions-Build erstellen |
 | `npm run preview` | Lokalen Preview des Builds starten |
 | `npm run test` | Tests einmalig ausführen |

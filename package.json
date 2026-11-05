@@ -3,8 +3,12 @@
   "private": true,
   "version": "1.1.0",
   "type": "module",
+  "engines": {
+    "node": ">=24 <25"
+  },
   "scripts": {
     "dev": "vite",
+    "server": "node server/index.js",
     "build": "vite build",
     "lint": "eslint . -f checkstyle -o reports/eslint/eslint-checkstyle.xml",
     "preview": "vite preview",
@@ -14,18 +18,20 @@
     "test:ci": "vitest run --config vitest.config.js",
     "owasp": "owasp-dependency-check --project chordpro-converter -f ALL -s ./package.json -s ./package-lock.json --out ./dependency-check-report --disableAssembly --disableYarnAudit --disableOssIndex --disableCentral --nvdApiKey $NVDAPIKEY --data ./dc-data",
     "lint:ci": "eslint . -f checkstyle -o reports/eslint/eslint-checkstyle.xml",
-    "lint:sonar": "eslint src --ext .ts,.tsx,.js,.jsx -f json -o reports/eslint/eslint-sonar.json"
+    "lint:sonar": "eslint src server --ext .ts,.tsx,.js,.jsx -f json -o reports/eslint/eslint-sonar.json"
   },
   "dependencies": {
     "axios": "^1.18.1",
     "bootstrap": "^5.3.8",
     "dotenv": "^17.4.2",
+    "fastify": "^5.12.8",
     "react": "^19.2.5",
     "react-bootstrap": "^2.10.10",
     "react-dom": "^19.2.8"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^7.0.0",
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.8",
