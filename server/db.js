@@ -22,14 +22,19 @@ export function loadMigrations(directory = defaultSchemaDirectory()) {
         throw new Error(`Schema-Verzeichnis fehlt: ${directory}`);
     }
 
+    const namesByVersion = new Map();
     const migrations = readdirSync(directory)
         .map((name) => {
             const match = MIGRATION_FILE.exec(name);
             if (!match) {
                 return null;
             }
+            const version = Number(match[1]);
+            const names = namesByVersion.get(version) ?? [];
+            names.push(name);
+            namesByVersion.set(version, names);
             return {
-                version: Number(match[1]),
+                version,
                 sql: readFileSync(path.join(directory, name), "utf8"),
             };
         })
@@ -38,6 +43,15 @@ export function loadMigrations(directory = defaultSchemaDirectory()) {
 
     if (migrations.length === 0) {
         throw new Error(`Kein Schema-Stand in ${directory}.`);
+    }
+
+    for (const [version, names] of namesByVersion) {
+        if (names.length > 1) {
+            names.sort();
+            throw new Error(
+                `Schema-Version ${version} kommt in ${directory} mehrfach vor: ${names.join(", ")}.`,
+            );
+        }
     }
 
     return migrations;
@@ -95,6 +109,7 @@ export function openDatabase(databasePath, options = {}) {
     const database = new DatabaseSync(resolvedPath);
     try {
         database.exec("PRAGMA journal_mode = WAL");
+        database.exec("PRAGMA foreign_keys = ON");
         const migrations = options.migrations ?? loadMigrations(options.schemaDirectory);
         applyMigrations(database, migrations);
         return database;

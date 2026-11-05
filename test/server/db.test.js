@@ -43,9 +43,11 @@ describe("openDatabase", () => {
         const databasePath = path.join(temporaryDirectory(), "nested", "cpc.sqlite");
         const database = openDatabase(databasePath);
         const mode = database.prepare("PRAGMA journal_mode").get();
+        const foreignKeys = database.prepare("PRAGMA foreign_keys").get();
         const versions = database.prepare("SELECT version FROM schema_migrations").all();
 
         expect(mode.journal_mode).toBe("wal");
+        expect(foreignKeys.foreign_keys).toBe(1);
         expect(versions.map((row) => row.version)).toEqual([1]);
         database.close();
     });
@@ -111,5 +113,18 @@ describe("openDatabase", () => {
         expect(() => openDatabase(databasePath, { schemaDirectory: empty }))
             .toThrow(/Kein Schema-Stand/);
         expect(() => openDatabase("")).toThrow(/Datenbankpfad fehlt/);
+    });
+});
+
+describe("loadMigrations", () => {
+    it("lehnt doppelte Schema-Versionen ab", () => {
+        const schemaDirectory = path.join(temporaryDirectory(), "schema");
+        mkdirSync(schemaDirectory);
+        writeFileSync(path.join(schemaDirectory, "001_init.sql"), "SELECT 1;");
+        writeFileSync(path.join(schemaDirectory, "001_another.sql"), "SELECT 1;");
+
+        expect(() => loadMigrations(schemaDirectory)).toThrow(
+            `Schema-Version 1 kommt in ${schemaDirectory} mehrfach vor: 001_another.sql, 001_init.sql.`,
+        );
     });
 });
