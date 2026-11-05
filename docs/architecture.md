@@ -277,7 +277,7 @@ GitHub Actions ist in vier getrennte Workflows aufgeteilt:
 1. `npm ci` → Dependencies
 2. `npm run test:ci` → Coverage für Sonar
 3. `npm run lint:sonar` → ESLint JSON-Report für Sonar
-4. SonarQube-Scan mit `SONAR_TOKEN`
+4. SonarQube-Scan mit `SONAR_TOKEN`, sofern das Secret im Lauf verfügbar ist. Fehlt es, etwa bei Dependabot, wird der Scan übersprungen.
 
 **Workflow `OWASP Dependency Check`:**
 
