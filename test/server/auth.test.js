@@ -442,6 +442,85 @@ describe("Kontenverwaltung", () => {
         database.close();
     });
 
+    function accountSnapshot(database, accountId) {
+        return {
+            account: database.prepare(`
+                SELECT username, administrator, disabled, password_hash, must_change_password
+                FROM accounts
+                WHERE id = ?
+            `).get(accountId),
+            sessions: database.prepare(`
+                SELECT token_hash FROM sessions WHERE account_id = ? ORDER BY token_hash
+            `).all(accountId),
+        };
+    }
+
+    it("lehnt das Deaktivieren des letzten aktiven Administrators ab", async () => {
+        const { database, app, admin } = await adminApp();
+        const before = accountSnapshot(database, admin.account.id);
+
+        const rejected = await write(app, `/api/accounts/${admin.account.id}/deactivate`, {}, {
+            cookie: admin.token,
+        });
+        expect(rejected.statusCode).toBe(409);
+        expect(rejected.json()).toEqual({ error: "last_administrator" });
+        expect(accountSnapshot(database, admin.account.id)).toEqual(before);
+        expect((await read(app, "/api/me", admin.token)).statusCode).toBe(200);
+
+        await app.close();
+        database.close();
+    });
+
+    it("deaktiviert einen von mehreren aktiven Administratoren", async () => {
+        const { database, app, admin } = await adminApp();
+        const second = await write(app, "/api/accounts", {
+            username: "Bea",
+            password: "admin-secret-qf7",
+            administrator: true,
+        }, { cookie: admin.token });
+        const secondLogin = await write(app, "/api/login", {
+            username: "Bea",
+            password: "admin-secret-qf7",
+        });
+
+        const deactivated = await write(app, `/api/accounts/${second.json().id}/deactivate`, {}, {
+            cookie: admin.token,
+        });
+        expect(deactivated.statusCode).toBe(200);
+        expect(deactivated.json()).toMatchObject({ username: "Bea", disabled: true, administrator: true });
+        expect((await read(app, "/api/me", sessionToken(secondLogin))).statusCode).toBe(401);
+        expect((await read(app, "/api/me", admin.token)).statusCode).toBe(200);
+        expect(database.prepare("SELECT disabled FROM accounts WHERE id = ?").get(admin.account.id).disabled).toBe(0);
+
+        await app.close();
+        database.close();
+    });
+
+    it("lehnt das Deaktivieren des letzten verbleibenden Administrators ab", async () => {
+        const { database, app, admin } = await adminApp();
+        const second = await write(app, "/api/accounts", {
+            username: "Bea",
+            password: "admin-secret-qf7",
+            administrator: true,
+        }, { cookie: admin.token });
+        const removed = await write(app, `/api/accounts/${second.json().id}/deactivate`, {}, {
+            cookie: admin.token,
+        });
+        expect(removed.statusCode).toBe(200);
+
+        const before = accountSnapshot(database, admin.account.id);
+        const rejected = await write(app, `/api/accounts/${admin.account.id}/deactivate`, {}, {
+            cookie: admin.token,
+        });
+        expect(rejected.statusCode).toBe(409);
+        expect(rejected.json()).toEqual({ error: "last_administrator" });
+        expect(accountSnapshot(database, admin.account.id)).toEqual(before);
+        expect((await read(app, "/api/me", admin.token)).statusCode).toBe(200);
+
+        await app.close();
+        database.close();
+    });
+
     it("setzt ein temporäres Passwort ohne Deaktivierung und erzwingt die Änderung", async () => {
         const { database, app, admin } = await adminApp();
         const created = await write(app, "/api/accounts", {

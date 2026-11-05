@@ -17,6 +17,7 @@ const MESSAGES = {
     setup_rejected: "Einrichtung abgelehnt.",
     setup_complete: "Die Einrichtung ist bereits abgeschlossen.",
     username_taken: "Der Benutzername ist bereits vergeben.",
+    last_administrator: "Der letzte aktive Administrator kann nicht deaktiviert werden.",
     forbidden: "Dafür fehlt die Berechtigung.",
     password_change_required: "Bitte zuerst das Passwort ändern.",
     password_rejected: "Das Passwort wurde nicht geändert.",

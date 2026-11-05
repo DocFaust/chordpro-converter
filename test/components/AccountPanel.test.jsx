@@ -194,6 +194,22 @@ describe("AccountPanel", () => {
         expect(await screen.findByRole("button", { name: "Anmelden" })).toBeInTheDocument();
     });
 
+    it("zeigt die Ablehnung, wenn der letzte Administrator deaktiviert werden soll", async () => {
+        const user = userEvent.setup();
+        loadSession.mockResolvedValue({ phase: "authenticated", account: admin });
+        listAccounts.mockResolvedValue({ accounts: [admin] });
+        deactivateAccount.mockRejectedValue(new ApiError(409, "last_administrator"));
+        render(<AccountPanel />);
+
+        await user.click(await screen.findByRole("button", { name: "Deaktivieren" }));
+        await user.click(screen.getByRole("button", { name: "Deaktivieren bestätigen" }));
+
+        expect(await screen.findByText(
+            "Der letzte aktive Administrator kann nicht deaktiviert werden.",
+        )).toBeInTheDocument();
+        expect(screen.getByText(/Angemeldet als/)).toBeInTheDocument();
+    });
+
     it("aktiviert ein deaktiviertes Konto wieder", async () => {
         const user = userEvent.setup();
         loadSession.mockResolvedValue({ phase: "authenticated", account: admin });

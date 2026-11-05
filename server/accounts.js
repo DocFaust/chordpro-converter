@@ -239,17 +239,27 @@ function readAccount(database, accountId) {
 }
 
 export function setAccountDisabled(database, accountId, disabled) {
-    const row = readAccount(database, accountId);
-    if (!row) {
-        throw new AccountError("not_found", 404);
-    }
-    withImmediate(database, () => {
+    return withImmediate(database, () => {
+        const row = readAccount(database, accountId);
+        if (!row) {
+            throw new AccountError("not_found", 404);
+        }
+        if (disabled && row.administrator === 1 && row.disabled === 0) {
+            const active = database.prepare(`
+                SELECT COUNT(*) AS count
+                FROM accounts
+                WHERE administrator = 1 AND disabled = 0
+            `).get();
+            if (Number(active.count) <= 1) {
+                throw new AccountError("last_administrator", 409);
+            }
+        }
         database.prepare("UPDATE accounts SET disabled = ? WHERE id = ?").run(disabled ? 1 : 0, accountId);
         if (disabled) {
             database.prepare("DELETE FROM sessions WHERE account_id = ?").run(accountId);
         }
+        return toPublicAccount({ ...row, disabled: disabled ? 1 : 0 });
     });
-    return toPublicAccount({ ...row, disabled: disabled ? 1 : 0 });
 }
 
 export function resetAccountPassword(database, accountId, temporaryPassword) {
