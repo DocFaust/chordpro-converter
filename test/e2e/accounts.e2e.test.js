@@ -66,25 +66,36 @@ afterAll(async () => {
 
 describe("Konten im Browser", () => {
     it("meldet an und ab und legt ein Konto an", async () => {
-        await waitForId(page, "setup-token");
+        await waitForText(page, "Umwandeln");
+        await waitForText(page, "Einrichten");
         const converterVisible = await page.evaluate(`Boolean([...document.querySelectorAll("button")].find((button) => button.textContent.trim() === "Umwandeln"))`);
         expect(converterVisible).toBe(true);
+        expect(await page.evaluate(`document.getElementById("setup-token") === null`)).toBe(true);
+
+        await clickButton(page, "Einrichten");
+        await waitForId(page, "setup-token");
+        const converterDuringSetup = await page.evaluate(`Boolean([...document.querySelectorAll("button")].find((button) => button.textContent.trim() === "Umwandeln"))`);
+        expect(converterDuringSetup).toBe(true);
 
         await setField(page, "setup-token", TOKEN);
         await setField(page, "setup-username", "Ada");
         await setField(page, "setup-password", ADMIN_PASSWORD);
         await clickButton(page, "Einrichtung abschließen");
+        await clickButton(page, "Ada");
         await waitForText(page, "Angemeldet als");
-        await waitForText(page, "Ada");
 
         await clickButton(page, "Abmelden");
+        await clickButton(page, "Anmelden");
         await waitForId(page, "login-username");
         await setField(page, "login-username", "ADA");
         await setField(page, "login-password", ADMIN_PASSWORD);
         await clickButton(page, "Anmelden");
+        await clickButton(page, "Ada");
         await waitForText(page, "Angemeldet als");
+        await clickButton(page, "Konten verwalten");
         await waitForId(page, "create-username");
         expect(await page.evaluate("document.body.innerText")).toContain("Ada");
+        expect(await page.evaluate(`document.querySelector("[id^='reset-password-']") === null`)).toBe(true);
 
         await setField(page, "create-username", "Ben");
         await setField(page, "create-password", MEMBER_PASSWORD);
@@ -93,7 +104,10 @@ describe("Konten im Browser", () => {
         await waitForText(page, "persönlich mitteilen");
         await waitForText(page, "keine E-Mail");
 
+        await clickButton(page, "Schließen");
+        await clickButton(page, "Ada");
         await clickButton(page, "Abmelden");
+        await clickButton(page, "Anmelden");
         await waitForId(page, "login-username");
         const stillConverts = await page.evaluate(`Boolean([...document.querySelectorAll("button")].find((button) => button.textContent.trim() === "Umwandeln" && !button.disabled))`);
         expect(stillConverts).toBe(true);

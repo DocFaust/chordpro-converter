@@ -87,8 +87,10 @@ function App() {
 
     return (
         <Container className="mt-4">
-            <h1>ChordPro Converter</h1>
-            <AccountPanel />
+            <div className="d-flex justify-content-between align-items-start gap-3 mb-4">
+                <h1 className="mb-0">ChordPro Converter</h1>
+                <AccountPanel />
+            </div>
             <InputFields
                 title={title}
                 setTitle={setTitle}

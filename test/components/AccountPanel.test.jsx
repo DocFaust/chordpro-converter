@@ -68,15 +68,17 @@ describe("AccountPanel", () => {
         setupAccount.mockResolvedValue(admin);
         render(<AccountPanel />);
 
+        await user.click(await screen.findByRole("button", { name: "Einrichten" }));
         await user.type(await screen.findByLabelText("Einrichtungstoken"), "token");
         await user.type(screen.getByLabelText("Benutzername"), "Ada");
         await user.type(screen.getByLabelText("Passwort"), "geheim");
         await user.click(screen.getByRole("button", { name: "Einrichtung abschließen" }));
 
+        await user.click(await screen.findByRole("button", { name: "Ada" }));
         expect(await screen.findByText(/Angemeldet als/)).toBeInTheDocument();
-        expect(screen.getAllByText("Ada").length).toBeGreaterThan(0);
-        expect(screen.getByText(/keine E-Mail/)).toBeInTheDocument();
         expect(screen.getByRole("button", { name: "Abmelden" })).toHaveClass("btn-lg");
+        await user.click(screen.getByRole("button", { name: "Konten verwalten" }));
+        expect(await screen.findByText(/keine E-Mail/)).toBeInTheDocument();
         expect(setupAccount).toHaveBeenCalledWith({
             username: "Ada",
             password: "geheim",
@@ -93,6 +95,7 @@ describe("AccountPanel", () => {
         login.mockResolvedValueOnce(member);
         render(<AccountPanel />);
 
+        await user.click(await screen.findByRole("button", { name: "Anmelden" }));
         await user.type(await screen.findByLabelText("Benutzername"), "Ben");
         await user.type(screen.getByLabelText("Passwort"), "falsch");
         await user.click(screen.getByRole("button", { name: "Anmelden" }));
@@ -116,6 +119,8 @@ describe("AccountPanel", () => {
         resetAccountPassword.mockResolvedValue({ ...member, mustChangePassword: true });
         render(<AccountPanel />);
 
+        await user.click(await screen.findByRole("button", { name: "Ada" }));
+        await user.click(screen.getByRole("button", { name: "Konten verwalten" }));
         await user.type(await screen.findByLabelText("Benutzername"), "Ben");
         await user.type(screen.getByLabelText("Passwort"), "mitglied");
         await user.click(screen.getByLabelText("Administrator"));
@@ -127,8 +132,8 @@ describe("AccountPanel", () => {
             administrator: true,
         });
 
-        await user.type(screen.getByLabelText("Temporäres Passwort für Ben"), "temporaer");
         await user.click(screen.getAllByRole("button", { name: "Passwort zurücksetzen" })[1]);
+        await user.type(screen.getByLabelText("Temporäres Passwort für Ben"), "temporaer");
         await user.click(screen.getByRole("button", { name: "Zurücksetzen bestätigen" }));
         expect(resetAccountPassword).toHaveBeenCalledWith(2, "temporaer");
         expect(await screen.findByText(/persönlich mitteilen/)).toBeInTheDocument();
@@ -170,7 +175,8 @@ describe("AccountPanel", () => {
             .mockResolvedValueOnce({ phase: "login", account: null });
         logout.mockResolvedValue(null);
         render(<AccountPanel />);
-        await user.click(await screen.findByRole("button", { name: "Abmelden" }));
+        await user.click(await screen.findByRole("button", { name: "Ben" }));
+        await user.click(screen.getByRole("button", { name: "Abmelden" }));
         expect(await screen.findByRole("button", { name: "Anmelden" })).toBeInTheDocument();
 
         cleanup();
@@ -186,7 +192,8 @@ describe("AccountPanel", () => {
             .mockResolvedValueOnce({ phase: "login", account: null });
         changePassword.mockResolvedValue(null);
         render(<AccountPanel />);
-        await user.click(await screen.findByRole("button", { name: "Eigenes Passwort ändern" }));
+        await user.click(await screen.findByRole("button", { name: "Ben" }));
+        await user.click(screen.getByRole("button", { name: "Eigenes Passwort ändern" }));
         await user.type(screen.getByLabelText("Aktuelles Passwort"), "alt");
         await user.type(screen.getByLabelText("Neues Passwort"), "neu");
         await user.click(screen.getByRole("button", { name: "Passwort speichern" }));
@@ -201,6 +208,8 @@ describe("AccountPanel", () => {
         deactivateAccount.mockRejectedValue(new ApiError(409, "last_administrator"));
         render(<AccountPanel />);
 
+        await user.click(await screen.findByRole("button", { name: "Ada" }));
+        await user.click(screen.getByRole("button", { name: "Konten verwalten" }));
         await user.click(await screen.findByRole("button", { name: "Deaktivieren" }));
         await user.click(screen.getByRole("button", { name: "Deaktivieren bestätigen" }));
 
@@ -218,6 +227,8 @@ describe("AccountPanel", () => {
         });
         activateAccount.mockResolvedValue(member);
         render(<AccountPanel />);
+        await user.click(await screen.findByRole("button", { name: "Ada" }));
+        await user.click(screen.getByRole("button", { name: "Konten verwalten" }));
         await user.click(await screen.findByRole("button", { name: "Aktivieren" }));
         expect(activateAccount).toHaveBeenCalledWith(2);
     });
