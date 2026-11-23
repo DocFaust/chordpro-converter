@@ -24,8 +24,16 @@ jobs:
       - name: Dependencies installieren
         run: npm ci --ignore-scripts
 
+      - name: Google Chrome installieren
+        run: |
+          wget -q -O /tmp/chrome.deb https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+          sudo apt-get update
+          sudo apt-get install -y /tmp/chrome.deb
+
       - name: Tests ausführen (mit Coverage)
         run: npm run test:ci
+        env:
+          CHROME_PATH: /usr/bin/google-chrome-stable
 
       - name: Lint für Sonar ausführen
         run: npm run lint:sonar
